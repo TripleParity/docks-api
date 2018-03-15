@@ -1,0 +1,27 @@
+{
+  "name": "docks",
+  "version": "0.0.1",
+  "description": "REST API for Docks ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TripleParity/docks.git"
+  },
+  "keywords": [
+    "docker",
+    "docker-swarm"
+  ],
+  "author": "TripleParity",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/TripleParity/docks/issues"
+  },
+  "homepage": "https://github.com/TripleParity/docks#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
