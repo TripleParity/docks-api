@@ -1,4 +1,4 @@
 #!/bin/sh
 
 npm install
-npm start
+DEBUG=docks:* PORT=8080 npm start
