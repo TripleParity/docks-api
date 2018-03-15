@@ -1,38 +1,43 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const request = require('request');
+const router = express.Router();
 
 const http = require('http');
 const querystring = require('querystring');
 
 /* Proxy for docker socket */
-router.all('*', function(req, res, next) {
-    console.log(req.path);
-    const dockerSocketOptions = {
-        socketPath: '/var/run/docker.sock',
-        path: req.url,
-        method: req.method
+router.all('*', function (req, res, next) {
+    const requestOptions = {
+        baseUrl: "http://unix:/var/run/docker.sock:",
+        url: req.url,
+        method: req.method,
+        body: JSON.stringify(req.body),
+        headers: {
+            // Docker API expects a host header to be present.
+            'Host': ''
+        }
     };
 
-    console.log(dockerSocketOptions);
+    request(requestOptions, (error, response, body) => {
+        if (error) {
+            res.status(500);
+            res.write("Error while sending request to docker API: " + error);
+            console.error(error);
+            return;
+        }
 
-    // The request sent to the docker daemon
-    const clientRequest = http.request(dockerSocketOptions, resp => {
-         resp.on('data', data => {
-             console.log("got data: " + data);
-             res.status(resp.statusCode);
-             res.send(JSON.parse(data));
-         });
+        res.status(response.statusCode);
+
+        // Append the headers that the docker API returned
+        for (const key in response.headers) {
+            if (response.headers.hasOwnProperty(key)) {
+                res.append(key, response.headers[key]);
+            }
+        }
+
+        res.write(body);
+        res.end();
     });
-
-    clientRequest.on('error', err => {
-        //todo: better error handling
-       res.send("Could not connect to docker.");
-       console.error(err);
-       res.end();
-    });
-
-    clientRequest.write(JSON.stringify(req.body));
-    clientRequest.end();
 });
 
 module.exports = router;
