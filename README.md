@@ -15,7 +15,7 @@ If you use the included Docker file for development, there is no need to install
 When the development image runs (step 2), npm will check for any updates. The Express server will automatically
 reload as you edit local files.
 
-Not: currently, the development container will set the ownership of the `node_modules` folder and all installed 
+Note: currently, the development container will set the ownership of the `node_modules` folder and all installed 
 packages to root if they don't exist (pure Docker workflow). 
 
 ## Production
