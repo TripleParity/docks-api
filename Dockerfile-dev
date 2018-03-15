@@ -1,0 +1,9 @@
+FROM node:9.8.0-alpine
+
+MAINTAINER TripleParity
+
+EXPOSE 8080
+
+WORKDIR /app
+ENV NODE_ENV=development
+CMD ./scripts/docks-dev-start.sh
