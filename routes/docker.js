@@ -2,8 +2,6 @@ const express = require('express');
 const request = require('request');
 const router = express.Router();
 
-const http = require('http');
-const querystring = require('querystring');
 const cors = require('cors');
 
 /* Proxy for docker socket */
