@@ -1,11 +1,21 @@
-# docks
-Implementation of the project
+# Docks
 
 Provides a http proxy to the Docker API at `localhost:8080/docker`. For more information,
 view [the Docker API documentation.](https://docs.docker.com/engine/api/v1.37)
 
 An example of interacting with the docks api:
 `curl http://localhost:8080/docker/containers/json`
+
+## Deployment
+Docks API can be deployed with:
+```
+$ docker run -d -p 8080:8080 --name docks -v /var/run/docker.sock:/var/run/docker.sock tripleparity/docks
+```
+
+To stop the running container:
+```
+$ docker stop docks
+```
 
 ## Development
 If you use the included Docker file for development, there is no need to install NodeJS on your local machine.
@@ -17,7 +27,3 @@ reload as you edit local files.
 
 Note: currently, the development container will set the ownership of the `node_modules` folder and all installed
 packages to root if they don't exist (pure Docker workflow).
-
-## Production
-1. `docker build -f Dockerfile-prod -t docks-production .`
-2. `docker run -it -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock docks-production `
