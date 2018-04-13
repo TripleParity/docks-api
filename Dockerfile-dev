@@ -2,6 +2,13 @@ FROM node:9.8.0-alpine
 
 MAINTAINER TripleParity
 
+RUN apk update && \
+    apk upgrade
+
+RUN apk add docker
+
+#RUN rc-update add docker boot
+
 EXPOSE 8080
 
 WORKDIR /app
