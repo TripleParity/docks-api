@@ -19,6 +19,12 @@ $ docker stop docks
 
 ## Development
 If you use the included Docker file for development, there is no need to install NodeJS on your local machine.
+
+The included Development docker-compose file will run the Docks API on port 8080:
+
+`$ docker-compose up`
+
+If you prefer to run it manually, you can start the API with:
 1. `docker build -f Dockerfile-dev -t docks-development .`
 2. `docker run -it -v "$(pwd)"/:/app -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock docks-development `
 
