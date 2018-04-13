@@ -5,7 +5,7 @@ const router = express.Router();
 const cors = require('cors');
 
 /* Proxy for docker socket */
-router.all('*', cors(), function (req, res, next) {
+router.all('*', function (req, res, next) {
     const requestOptions = {
         baseUrl: "http://unix:/var/run/docker.sock:",
         url: req.url,

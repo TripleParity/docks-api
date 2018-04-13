@@ -5,7 +5,15 @@ MAINTAINER TripleParity
 RUN apk update && \
     apk upgrade
 
-RUN apk add docker
+# Install docker
+RUN apk add docker && \
+    apk add py-pip
+
+# Install docker-compose
+RUN pip install docker-compose
+
+# Set environmental flags for docker compose
+ENV DOCKER_HOST=unix:///var/run/docker.sock
 
 #RUN rc-update add docker boot
 
