@@ -34,19 +34,16 @@ describe('The UserManager', function() {
         expect(user).not.toBe(null);
         expect(user.id).toBe(1);
         expect(user.username).toBe('admin');
-        expect(user.password).toBe('admin');
     })
 
     it('can create new users with an auto incrementing id', async function() {
         let newUser = await userManager.createUser('Fred', 'pass');
 
         expect(newUser.username).toBe('Fred');
-        expect(newUser.password).toBe('pass');
 
         let user = await userManager.getUserByUsername('Fred');
         expect(user.id).toBe(2);
         expect(user.username).toBe('Fred');
-        expect(user.password).toBe('pass');
 
     });
 
@@ -61,7 +58,36 @@ describe('The UserManager', function() {
         expect(user).not.toBe(null);
         expect(user.id).toBe(2);
         expect(user.username).toBe('Fred');
-        expect(user.password).toBe('pass');
-    })
+    });
+
+    it('created an admin user with username/password of admin/admin', async function() {
+        expect(await userManager.verifyCredentials('admin', 'admin')).toBe(true);
+    });
+
+    it('can authenticate users given username and password', async function() {
+        await userManager.createUser('James', 'Bond');
+        expect(await userManager.verifyCredentials('James', 'Bond')).toBe(true);
+        expect(await userManager.verifyCredentials('James', '123123')).toBe(false);
+    });
+
+    it('handles invalid inputs', async function() {
+        let user = await userManager.getUserByUsername('does_not_exist');
+        expect(user).toBe(null);
+
+        let user2 = await userManager.getUserById(65447474);
+        expect(user2).toBe(null);
+
+        let valid = await userManager.verifyCredentials('does_not_exist', 'lel');
+        expect(valid).toBe(false);
+
+        let user3 = await userManager.createUser('James', 'rat');
+        expect(user3).not.toBe(null);
+
+        let user4 = await userManager.createUser('James', 'rat2');
+        expect(user4).toBe(null);
+
+        let user5 = await userManager.createUser('admin', 'lol');
+        expect(user5).toBe(null);
+    });
 
 });
