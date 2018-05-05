@@ -12,12 +12,14 @@ services:
         source: ./
         target: /app
     ports:
-      - "8080:8080"
+      - 8080:8080
 
   db:
     image: postgres
     environment:
       POSTGRES_PASSWORD: example
+    ports:
+      - 5432:5432
 
   adminer:
     image: adminer
