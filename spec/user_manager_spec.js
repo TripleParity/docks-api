@@ -99,4 +99,12 @@ describe('The UserManager', function() {
        expect(await userManager.verifyCredentials('Bob', 'yeah')).toBe(false);
     });
 
+    it('can delete users', async function() {
+        let user = await userManager.createUser('Bob', 'yeah');
+        expect(await userManager.getUserByUsername('Bob')).not.toBe(null);
+
+        expect(await userManager.removeUser('Bob')).toBe(true);
+        expect(await userManager.getUserByUsername('Bob')).toBe(null);
+    });
+
 });
