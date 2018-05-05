@@ -3,14 +3,21 @@ const router = express.Router();
 
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize('testDB2', 'null', 'null', {
-    dialect: 'sqlite',
-    storage: ':memory:',
+const db = new Sequelize('postgres', 'postgres', 'example', {
+    host: 'db',
+    dialect: 'postgres',
+    operatorsAliases: false,
+
+    pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
+    },
 });
 
-
 router.get('/test', function(req, res, next) {
-    sequelize
+    db
         .authenticate()
         .then(() => {
             console.log('Connection has been established successfully.');
