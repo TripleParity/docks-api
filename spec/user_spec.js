@@ -1,28 +1,26 @@
 /* eslint-disable */
 
-describe("user", function() {
-    const User = require('../lib/user.js');
-
+describe('The UserManager', function() {
+    const UserManager = require('../lib/user_manager.js');
     const Sequelize = require('sequelize');
 
-    const sequelizeSqlite = new Sequelize('database', null, null, {
-        dialect: 'sqlite',
-        storage: ':memory:',
-    });
+    let userManager = null;
+    let db = null;
 
-    // Used for testing if the test works
-    const sequelizePostgres = new Sequelize('postgres', 'postgres', 'example', {
-        host: 'localhost',
-        dialect: 'postgres',
-    });
+    beforeEach(async function() {
+        db = new Sequelize('database', null, null, {
+            dialect: 'sqlite',
+            storage: ':memory:',
+        });
 
+        userManager = new UserManager(db);
+        await userManager.initDatabase();
 
-    let user = new User(sequelizeSqlite);
+    })
 
-    it('should have a connection to the test database', async function() {
-
+    it('has a connection to the test database', async function() {
         try {
-            await user.testConnection();
+            await userManager.testConnection();
             expect(true).toBe(true);
         } catch (e) {
             console.error(e);
@@ -30,31 +28,40 @@ describe("user", function() {
         }
     });
 
-    describe('Given an empty database', function() {
+    it('is initialized with a default admin user', async function() {
+        let user = await userManager.getUserById(1);
 
-        beforeEach(function() {
-            const sqlite = new Sequelize('database', null, null, {
-                dialect: 'sqlite',
-                storage: ':memory:',
-            });
+        expect(user).not.toBe(null);
+        expect(user.id).toBe(1);
+        expect(user.username).toBe('admin');
+        expect(user.password).toBe('admin');
+    })
 
-            user = new User(sqlite);
-        });
+    it('can create new users with an auto incrementing id', async function() {
+        let newUser = await userManager.createUser('Fred', 'pass');
 
-        describe('When creating a new User object', function() {
-            it('the schema should be created)', async function() {
-                //expect(user.getDatabaseState()).toBe(true);
+        expect(newUser.username).toBe('Fred');
+        expect(newUser.password).toBe('pass');
 
-                //await user.initDatabase();
-                // TODO(egeldenhuys): Test actual database contents?
-                //expect(user.getDatabaseState()).toBe(true);
-
-                let userInstance = await user.createUser('Fred', 'poppers');
-                expect(userInstance.username).toBe('Fred');
-
-            });
-        });
-
+        let user = await userManager.getUserByUsername('Fred');
+        expect(user.id).toBe(2);
+        expect(user.username).toBe('Fred');
+        expect(user.password).toBe('pass');
 
     });
+
+    it('works with an existing database', async function() {
+        let newUser = await userManager.createUser('Fred', 'pass');
+
+        let anotherManager = new UserManager(db);
+        await userManager.initDatabase();
+
+        let user = await userManager.getUserById(2);
+
+        expect(user).not.toBe(null);
+        expect(user.id).toBe(2);
+        expect(user.username).toBe('Fred');
+        expect(user.password).toBe('pass');
+    })
+
 });
