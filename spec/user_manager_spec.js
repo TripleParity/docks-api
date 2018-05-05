@@ -90,4 +90,13 @@ describe('The UserManager', function() {
         expect(user5).toBe(null);
     });
 
+    it('can change User passwords', async function() {
+       let user = await userManager.createUser('Bob', 'yeah');
+       expect(await userManager.verifyCredentials('Bob', 'yeah')).toBe(true);
+
+       expect(await userManager.changePassword('Bob', 'no')).toBe(true);
+       expect(await userManager.verifyCredentials('Bob', 'no')).toBe(true);
+       expect(await userManager.verifyCredentials('Bob', 'yeah')).toBe(false);
+    });
+
 });
