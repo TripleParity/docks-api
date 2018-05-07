@@ -5,7 +5,7 @@ MAINTAINER TripleParity
 RUN apk update && \
     apk upgrade
 
-RUN apk add docker
+RUN apk add --update python make g++ docker
 
 #RUN rc-update add docker boot
 
