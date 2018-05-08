@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "production": "node ./bin/www"
+    "production": "node ./bin/www",
+    "test": "jasmine"
   },
   "dependencies": {
+    "bcrypt": "^2.0.1",
     "body-parser": "~1.18.2",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.4",
@@ -14,10 +16,18 @@
     "express": "~4.15.5",
     "jade": "~1.11.0",
     "morgan": "~1.9.0",
+    "pg": "^7.4.1",
+    "pg-hstore": "^2.3.2",
     "request": "^2.85.0",
+    "sequelize": "^4.37.6",
     "serve-favicon": "~2.4.5"
   },
   "devDependencies": {
-    "nodemon": "^1.17.2"
+    "eslint": "^4.19.1",
+    "eslint-config-google": "^0.9.1",
+    "jasmine": "^3.1.0",
+    "node-pre-gyp": "^0.10.0",
+    "nodemon": "^1.17.2",
+    "sqlite3": "^4.0.0"
   }
 }
