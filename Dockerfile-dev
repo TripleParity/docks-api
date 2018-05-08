@@ -6,6 +6,7 @@ RUN apk update && \
     apk upgrade
 
 RUN apk add --update python make g++ docker
+RUN apk add sqlite
 
 #RUN rc-update add docker boot
 
