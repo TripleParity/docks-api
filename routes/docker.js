@@ -13,7 +13,10 @@ router.all('*', cors(), function (req, res, next) {
         body: JSON.stringify(req.body),
         headers: {
             // Docker API expects a host header to be present.
-            'Host': ''
+            'Host': '',
+
+            // Content type needs to be passed along too
+            'Content-Type': req.get('Content-Type'),
         }
     };
 
