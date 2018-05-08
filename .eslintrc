@@ -1,7 +1,11 @@
 {
-  "extends": ["eslint:recommended", "google"],
+  "extends": [
+    "eslint:recommended",
+    "google"
+  ],
   "rules": {
     // Additional, per-project rules...
+    "no-console": "off"
   },
   "parserOptions": {
     "ecmaVersion": 6

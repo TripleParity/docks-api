@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const router = new express.Router();
 
 const Sequelize = require('sequelize');
 
@@ -23,7 +23,7 @@ router.get('/test', function(req, res, next) {
             console.log('Connection has been established successfully.');
             res.send('GOOD');
         })
-        .catch(err => {
+        .catch((err) => {
             console.error('Unable to connect to the database:', err);
             res.send(err);
         });
