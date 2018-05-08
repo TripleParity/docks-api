@@ -29,4 +29,22 @@ router.get('/test', function(req, res, next) {
         });
 });
 
+/*
+    Login endpoint. Accepts username and password in the body of the request in the format of a JSON object:
+    {
+        "username": "<username>",
+        "password": "<password>"
+    }
+
+    On login success, returns code 200 and embeds the JWT inside a JSON object:
+    {
+        "jwt": "<jwt>"
+    }
+
+    On failure, returns code 401
+ */
+router.post('/token', function (req, res, next) {
+
+});
+
 module.exports = router;
