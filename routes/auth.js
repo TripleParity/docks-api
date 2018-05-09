@@ -1,5 +1,6 @@
 const express = require('express');
 const router = new express.Router();
+const jwt = require('jsonwebtoken');
 
 const Sequelize = require('sequelize');
 
@@ -45,7 +46,20 @@ router.get('/test', function(req, res, next) {
     On failure, returns code 401
  */
 router.post('/token', function(req, res, next) {
-    res.send(req.JWT_SECRET);
+    if (req.body.username === 'admin' &&
+        req.body.password === 'admin') {
+        const payload = {
+            username: 'admin',
+            roles: ['admin'],
+        };
+        let token = jwt.sign(payload, req.JWT_SECRET);
+
+        res.send({
+            jwt: token,
+        });
+    } else {
+        res.status(401).send({error: 'Incorrect username and/or password'});
+    }
 });
 
 module.exports = router;
