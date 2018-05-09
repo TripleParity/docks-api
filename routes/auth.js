@@ -30,7 +30,8 @@ router.get('/test', function(req, res, next) {
 });
 
 /*
-    Login endpoint. Accepts username and password in the body of the request in the format of a JSON object:
+    Login endpoint. Accepts username and password in the body
+    of the request in the format of a JSON object:
     {
         "username": "<username>",
         "password": "<password>"
@@ -43,7 +44,7 @@ router.get('/test', function(req, res, next) {
 
     On failure, returns code 401
  */
-router.post('/token', function (req, res, next) {
+router.post('/token', function(req, res, next) {
 
 });
 
