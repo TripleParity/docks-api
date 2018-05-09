@@ -17,9 +17,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 // Extract secret key for JWT signing from environmental variable JWT_SECRET
-const JWT_SECRET = process.env["JWT_SECRET"];
-if (JWT_SECRET === undefined || JWT_SECRET === "") {
-    console.warn("Warning: JWT secret not set! Change JWT_SECRET to the required JWT secret value.");
+const JWT_SECRET = process.env['JWT_SECRET'];
+if (JWT_SECRET === undefined || JWT_SECRET === '') {
+    console.warn('Warning: JWT secret not set! Change JWT_SECRET to the required JWT secret value.');
 }
 
 // uncomment after placing your favicon in /public
@@ -39,14 +39,14 @@ app.use(['/docker', '/docker/*'], dockerProxyRouter);
 app.use('/api/auth', auth);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     let err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
