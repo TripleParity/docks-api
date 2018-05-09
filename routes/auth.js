@@ -45,7 +45,7 @@ router.get('/test', function(req, res, next) {
     On failure, returns code 401
  */
 router.post('/token', function(req, res, next) {
-
+    res.send(req.JWT_SECRET);
 });
 
 module.exports = router;
