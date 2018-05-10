@@ -11,6 +11,8 @@ services:
       - type: bind
         source: ./
         target: /app
+    environment:
+      - JWT_SECRET=changeme
     ports:
       - 8080:8080
 
