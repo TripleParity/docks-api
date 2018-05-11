@@ -1,26 +1,27 @@
 const express = require('express');
 const request = require('request');
-const router = express.Router();
-
-const cors = require('cors');
+const router = new express.Router();
 
 /* Proxy for docker socket */
-router.all('*', cors(), function (req, res, next) {
+router.all('*', function(req, res, next) {
     const requestOptions = {
-        baseUrl: "http://unix:/var/run/docker.sock:",
+        baseUrl: 'http://unix:/var/run/docker.sock:',
         url: req.url,
         method: req.method,
         body: JSON.stringify(req.body),
         headers: {
             // Docker API expects a host header to be present.
-            'Host': ''
-        }
+            'Host': '',
+
+            // Content type needs to be passed along too
+            'Content-Type': req.get('Content-Type'),
+        },
     };
 
     request(requestOptions, (error, response, body) => {
         if (error) {
             res.status(500);
-            res.write("Error while sending request to docker API: " + error);
+            res.write('Error while sending request to docker API: ' + error);
             console.error(error);
             return;
         }
