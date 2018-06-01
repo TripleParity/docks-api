@@ -5,8 +5,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Integration testing
+
 ### Changed
 - Check credentials in database instead of only checking `admin/admin` when requesting a JWT
+
+### Fixed
+- Wait for database before starting Docks
 
 ## [0.0.2] - 2018-05-11
 - Demo 2 release
