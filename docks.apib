@@ -1,0 +1,58 @@
+FORMAT: 1A
+HOST: http://127.0.0.1:8080
+
+# Docks
+
+Docks API
+
+# Group Authentication
+## Tokens [/api/auth/token]
+### Request new JWT [POST]
+
+Request a new JWT for use in Authenticated requests
+
++ Request (application/json)
+
+        {
+            "username": "admin",
+            "password": "admin"
+        }
+
++ Response 200 (application/json)
+    Valid credentials
+
+    + Body
+
+            {
+                "jwt": "8HhsbJ86AFjjhzj.ASKI9ghA7778ah.blahlbalhlb"
+            }
+
++ Response 401 (application/json)
+    Invalid credentials
+
+    + Body
+
+            {
+                "message": "Invalid username or password"
+            }
+
+# Group Docker
+## Containers [/docker]
+### List Containers [GET /docker/containers/json]
+
++ Request
+
+    + Headers
+
+            Authorization: Bearer <jwt>
+
++ Response 200 (application/json)
+    Valid credentials
+
+    + Body
+
+            See Docker API
+
++ Response 403 (application/json)
+
+    

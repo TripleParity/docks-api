@@ -5,7 +5,8 @@
   "scripts": {
     "start": "nodemon ./bin/www",
     "production": "node ./bin/www",
-    "test": "jasmine"
+    "test": "jasmine",
+    "jest": "jest"
   },
   "dependencies": {
     "bcrypt": "^2.0.1",
@@ -27,7 +28,9 @@
   "devDependencies": {
     "eslint": "^4.19.1",
     "eslint-config-google": "^0.9.1",
+    "frisby": "^2.0.16",
     "jasmine": "^3.1.0",
+    "jest": "^23.1.0",
     "node-pre-gyp": "^0.10.0",
     "nodemon": "^1.17.2",
     "sqlite3": "^4.0.0"
