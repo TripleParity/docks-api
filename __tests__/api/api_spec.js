@@ -13,7 +13,7 @@ describe('Authentication', function() {
     it('should serve JWT for valid ("admin/admin") credentials', function() {
         return frisby
             .post(host + '/api/auth/token', {
-                username: 'admins',
+                username: 'admin',
                 password: 'admin',
             })
             .expect('status', 200)
