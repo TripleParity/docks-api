@@ -6,10 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Integration testing
+- Integration testing using [frisby] and [jest] ([#41])
+- API Specification for Docks following [API Blueprint] ([#41])
 
 ### Changed
-- Check credentials in database instead of only checking `admin/admin` when requesting a JWT
+- Check credentials in database instead of only checking `admin/admin` when requesting a JWT ([#29])
 
 ### Fixed
 - Wait for database before starting Docks
@@ -22,3 +23,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 [Unreleased]: https://github.com/TripleParity/docks-api/compare/0.0.2...HEAD
 [0.0.2]: https://github.com/TripleParity/docks-api/compare/0.0.1...0.0.2
+
+[#41]: https://github.com/TripleParity/docks-api/issues/41
+[#29]: https://github.com/TripleParity/docks-api/issues/29
+
+[frisby]: https://www.frisbyjs.com/
+[jest]: https://facebook.github.io/jest/
+[API Blueprint]: https://apiblueprint.org/
