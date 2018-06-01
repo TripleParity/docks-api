@@ -1,0 +1,9 @@
+version: '3.2'
+
+services:
+
+  api:
+    image: docks-api:local
+    build:
+      context: .
+      dockerfile: Dockerfile
