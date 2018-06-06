@@ -4,7 +4,6 @@ node_js:
 dist: trusty
 
 cache:
-    npm: true
     directories:
         - node_modules
 
@@ -20,5 +19,6 @@ after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
 notifications:
-    on_failure: change
+  email:
     on_success: change
+    on_failure: change
