@@ -11,6 +11,7 @@ describe('The UserManager', function() {
         db = new Sequelize('database', null, null, {
             dialect: 'sqlite',
             storage: ':memory:',
+            logging: false,
         });
 
         userManager = new UserManager(db);
