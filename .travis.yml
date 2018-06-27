@@ -1,7 +1,14 @@
+dist: trusty
+
+sudo: required
+
+services:
+  - docker
+
 language: node_js
+
 node_js:
    - node
-dist: trusty
 
 cache:
     npm: true
@@ -13,6 +20,7 @@ before_script:
 
 script:
    - npm test
+   - ./integration-test.sh
 
 notifications:
     on_failure: change

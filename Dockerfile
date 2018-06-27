@@ -2,7 +2,7 @@ FROM node:9.8.0-alpine
 
 MAINTAINER TripleParity
 
-RUN apk add --update python make g++
+RUN apk add --update python make g++ postgresql-client
 
 EXPOSE 8080
 
@@ -13,4 +13,4 @@ RUN npm install --only=production
 
 COPY . .
 
-CMD ./scripts/docks-prod-start.sh
+CMD ["/app/scripts/docks-prod-start.sh"]
