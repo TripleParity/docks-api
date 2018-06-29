@@ -54,14 +54,12 @@ Returns all users in the database.
     + Body
 
             {
-                [
+                "data": [
                     {
-                        "username": "bob",
-                        "isAdmin": true
+                        "username": "bob"
                     },
                     {
-                        "username": "john",
-                        "isAdmin": true
+                        "username": "john"
                     }
                 ]
             }
@@ -97,7 +95,6 @@ Create a new user
     + Attributes
         + username (string)
         + password (string, optional)
-        + isAdmin (boolean, optional)
 
     + Body
 
@@ -133,8 +130,8 @@ Delete a user from the system
     + Body
 
 # Group Docker
-## Containers [/docker]
-### List Containers [GET /docker/containers/json]
+## Services [/services]
+### List Services [GET /services]
 
 + Request
 
@@ -143,6 +140,6 @@ Delete a user from the system
             Authorization: Bearer <jwt>
 
 + Response 200 (application/json)
-
-+ Response 403 (application/json)
++ Response 406
++ Response 500
 

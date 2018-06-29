@@ -19,7 +19,6 @@ let app = express();
 
 let userManager = new UserManager(db);
 initDatabase(); // block
-userManager.createUser('Fred', 'pop');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
