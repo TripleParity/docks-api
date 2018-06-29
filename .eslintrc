@@ -4,11 +4,10 @@
     "google"
   ],
   "rules": {
-    // Additional, per-project rules...
     "no-console": "off"
   },
   "parserOptions": {
-    "ecmaVersion": 6
+    "ecmaVersion": 8
   },
   "env": {
     "node": true
