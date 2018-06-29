@@ -9,9 +9,9 @@ let index = require('./routes/index');
 let users = require('./routes/users');
 let dockerProxyRouter = require('./routes/docker');
 let auth = require('./routes/auth');
-let jwtMiddleware = require('./jwt');
+let jwtMiddleware = require('./lib/jwt');
 
-const db = require('./db');
+const db = require('./lib/db');
 
 const UserManager = require('./lib/user_manager');
 
@@ -31,8 +31,6 @@ if (JWT_SECRET === undefined || JWT_SECRET === '') {
     console.warn('Warning: JWT secret not set! Change JWT_SECRET to the required JWT secret value.');
 }
 
-// uncomment after placing your favicon in /public
-// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 // CORS for all routes
 app.use(cors());
@@ -69,8 +67,12 @@ app.use(function(err, req, res, next) {
     res.render('error');
 });
 
+/**
+ * Perform database initialization operations
+ *
+ */
 async function initDatabase() {
-    console.log("Initializing database...");
+    console.log('Initializing database...');
     await userManager.initDatabase();
 }
 
