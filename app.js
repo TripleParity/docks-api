@@ -11,7 +11,15 @@ let dockerProxyRouter = require('./routes/docker');
 let auth = require('./routes/auth');
 let jwtMiddleware = require('./jwt');
 
+const db = require('./db');
+
+const UserManager = require('./lib/user_manager');
+
 let app = express();
+
+let userManager = new UserManager(db);
+initDatabase(); // block
+userManager.createUser('Fred', 'pop');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -60,5 +68,10 @@ app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error');
 });
+
+async function initDatabase() {
+    console.log("Initializing database...");
+    await userManager.initDatabase();
+}
 
 module.exports = app;

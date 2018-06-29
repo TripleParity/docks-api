@@ -17,7 +17,7 @@ describe('The UserManager', function() {
         userManager = new UserManager(db);
         await userManager.initDatabase();
 
-    })
+    });
 
     it('has a connection to the test database', async function() {
         try {
@@ -35,7 +35,7 @@ describe('The UserManager', function() {
         expect(user).not.toBe(null);
         expect(user.id).toBe(1);
         expect(user.username).toBe('admin');
-    })
+    });
 
     it('can create new users with an auto incrementing id', async function() {
         let newUser = await userManager.createUser('Fred', 'pass');

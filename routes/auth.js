@@ -1,21 +1,10 @@
 const express = require('express');
 const router = new express.Router();
 const jwt = require('jsonwebtoken');
+const UserManager = require('../lib/user_manager');
+const db = require('../db');
 
-const Sequelize = require('sequelize');
-
-const db = new Sequelize('postgres', 'postgres', 'example', {
-    host: 'db',
-    dialect: 'postgres',
-    operatorsAliases: false,
-
-    pool: {
-        max: 5,
-        min: 0,
-        acquire: 30000,
-        idle: 10000,
-    },
-});
+const userManager = new UserManager(db);
 
 router.get('/test', function(req, res, next) {
     db
@@ -44,22 +33,27 @@ router.get('/test', function(req, res, next) {
     }
 
     On failure, returns code 401
+
+    NOTE: Requires the header Content-Type: application/json
  */
 router.post('/token', function(req, res, next) {
-    if (req.body.username === 'admin' &&
-        req.body.password === 'admin') {
-        const payload = {
-            username: 'admin',
-            roles: ['admin'],
-        };
-        let token = jwt.sign(payload, req.JWT_SECRET);
+    userManager.verifyCredentials(req.body.username, req.body.password).then((valid) => {
+            if (valid) {
+                const payload = {username: req.body.username};
 
-        res.send({
-            jwt: token,
+                let token = jwt.sign(payload, req.JWT_SECRET);
+
+                res.send({
+                    jwt: token,
+                });
+            } else {
+                res.status(401).send({error: 'Incorrect username and/or password'});
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send();
         });
-    } else {
-        res.status(401).send({error: 'Incorrect username and/or password'});
-    }
 });
 
 module.exports = router;
