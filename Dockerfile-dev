@@ -1,3 +1,5 @@
+# Dockerfile for running nodejs in a container with hot reload
+
 FROM node:9.8.0-alpine
 
 MAINTAINER TripleParity
