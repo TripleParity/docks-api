@@ -59,11 +59,12 @@ router.post('/', function(req, res, next) {
 /**
  * Update user
  */
-router.put('/', function(req, res, next) {
-  // TODO(egeldenhuys): Check if user exists for more complicated updates
+router.put('/:username', function(req, res, next) {
+  // TODO(egeldenhuys): Check if user exists before more complicated updates
+
   if ('password' in req.body) {
     userManager
-      .changePassword(req.body.username, req.body.password)
+      .changePassword(req.params.username, req.body.password)
       .then((result) => {
         if (result === true) {
           res.status(200).send();
@@ -81,9 +82,9 @@ router.put('/', function(req, res, next) {
 /**
  * DELETE user
  */
-router.delete('/', function(req, res, next) {
+router.delete('/:username', function(req, res, next) {
   userManager
-    .removeUser(req.body.username)
+    .removeUser(req.params.username)
     .then((result) => {
       if (result === true) {
         res.status(200).send();

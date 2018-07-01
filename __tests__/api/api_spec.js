@@ -84,11 +84,14 @@ describe('User Management', function() {
 
   it('should not give access to "Update User" without valid JWT', function() {
     return frisby
-      .put(host + '/users', {
-        username: 'admin',
+      .put(host + '/users/admin', {
         password: 'password',
       })
       .expect('status', 401);
+  });
+
+  it('should not give access to "Delete" without valid JWT', function() {
+    return frisby.delete(host + '/users/admin').expect('status', 401);
   });
 
   it('should be able to create new users if they do not exist', function() {
@@ -136,26 +139,24 @@ describe('User Management', function() {
       const jwt = res.json.jwt;
 
       return frisby
-        .fetch(host + '/users', {
+        .fetch(host + '/users/test_fred', {
           method: 'PUT',
           headers: {
             Authorization: 'Bearer ' + jwt,
           },
           body: JSON.stringify({
-            username: 'test_fred',
             password: 'newPass',
           }),
         })
         .expect('status', 200)
         .then((res2) => {
           return frisby
-            .fetch(host + '/users', {
+            .fetch(host + '/users/dude8u9348u9r', {
               method: 'PUT',
               headers: {
                 Authorization: 'Bearer ' + jwt,
               },
               body: JSON.stringify({
-                username: 'dude8u9348u9r',
                 password: 'lel',
               }),
             })
@@ -181,26 +182,20 @@ describe('User Management', function() {
       const jwt = res.json.jwt;
 
       return frisby
-        .fetch(host + '/users', {
+        .fetch(host + '/users/test_fred', {
           method: 'DELETE',
           headers: {
             Authorization: 'Bearer ' + jwt,
           },
-          body: JSON.stringify({
-            username: 'test_fred',
-          }),
         })
         .expect('status', 200)
         .then((res2) => {
           return frisby
-            .fetch(host + '/users', {
+            .fetch(host + '/users/fgh556ttffg', {
               method: 'DELETE',
               headers: {
                 Authorization: 'Bearer ' + jwt,
               },
-              body: JSON.stringify({
-                username: 'fgh556ttffg',
-              }),
             })
             .expect('status', 404);
         });

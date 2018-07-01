@@ -44,7 +44,7 @@ Request a new JWT for use in Authenticated requests
             }
 
 # Group User Management
-## Users [/users]
+## User Collection [/users]
 
 ### Get All Users [GET]
 Returns all users in the database.
@@ -86,18 +86,21 @@ Create a new user
 
     + Body
 
+## User [/users/{username}]
+
++ Parameters
+    + username (string) - The username used to login
+
 ### Update User [PUT]
 
 + Request (application/json)
 
     + Attributes
-        + username (string)
         + password (string, optional)
 
     + Body
 
             {
-                "username": "fred",
                 "password": "BetterPass333"
             }
 
@@ -109,17 +112,6 @@ Create a new user
 
 ### Delete User [DELETE]
 Delete a user from the system
-
-+ Request (application/json)
-
-    + Attributes
-        + username (string)
-
-    + Body
-    
-            {
-                "username": "fred"
-            }
 
 + Response 200
 + Response 404
