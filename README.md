@@ -50,7 +50,7 @@ Please see the security implications of [managing Docker as a non-root user](htt
 # without running npm as root
 sudo usermod -aG docker $USER
 
-# Log out and log back in so that your group membership is re-evaluated.
+# Log out and log back in or restart so that your group membership is re-evaluated.
 
 docker swarm init
 
