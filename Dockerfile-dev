@@ -7,7 +7,9 @@ RUN apk update && \
 
 # Install docker
 RUN apk add docker && \
-    apk add py-pip
+    apk add py-pip && \
+    apk add --update python make g++ docker && \
+    apk add sqlite
 
 # Install docker-compose
 RUN pip install docker-compose

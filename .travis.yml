@@ -1,0 +1,28 @@
+dist: trusty
+
+sudo: required
+
+services:
+  - docker
+
+language: node_js
+
+node_js:
+   - node
+
+cache:
+    npm: true
+    directories:
+        - node_modules
+
+before_script:
+  - npm install --silent
+
+script:
+   - npm test
+   - ./integration-test.sh
+
+notifications:
+    on_failure: change
+
+on_success: change

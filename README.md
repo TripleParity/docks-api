@@ -1,4 +1,4 @@
-# Docks
+# Docks API
 
 Provides a http proxy to the Docker API at `localhost:8080/docker`. For more information,
 view [the Docker API documentation.](https://docs.docker.com/engine/api/v1.37)
@@ -6,15 +6,20 @@ view [the Docker API documentation.](https://docs.docker.com/engine/api/v1.37)
 An example of interacting with the docks api:
 `curl http://localhost:8080/docker/containers/json`
 
+## Requirements
+- Linux or MacOs
+- Docker
+- Docker-Compose (if you want to use the `docker-compose.yml` for development)
+
 ## Deployment
 Docks API can be deployed with:
 ```
-$ docker run -d -p 8080:8080 --name docks -v /var/run/docker.sock:/var/run/docker.sock tripleparity/docks
+$ docker run -d -p 8080:8080 --name docks-api -v /var/run/docker.sock:/var/run/docker.sock tripleparity/docks-api
 ```
 
 To stop the running container:
 ```
-$ docker stop docks
+$ docker stop docks-api
 ```
 
 ## Development
