@@ -1,0 +1,29 @@
+# Deploy the latest version of docks-api from master branch
+
+version: '3.2'
+
+services:
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/app
+    environment:
+      - JWT_SECRET=changeme
+      - DOCKS_DB_ADDRESS=db
+      - POSTGRES_PASSWORD=example
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=example

@@ -2,6 +2,10 @@
 
 FROM node:9.8.0-alpine
 
+RUN apk add --update python make g++ postgresql-client
+
+EXPOSE 8080
+
 MAINTAINER TripleParity
 
 RUN apk update && \
@@ -18,8 +22,6 @@ RUN pip install docker-compose
 
 # Set environmental flags for docker compose
 ENV DOCKER_HOST=unix:///var/run/docker.sock
-
-#RUN rc-update add docker boot
 
 EXPOSE 8080
 
