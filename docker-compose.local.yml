@@ -1,3 +1,5 @@
+# Used for integration testing with docker-compose.yml as the base config
+
 version: '3.2'
 
 services:

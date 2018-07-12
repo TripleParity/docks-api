@@ -1,0 +1,12 @@
+# Used for testing docks-api using npm when it requires a DB
+
+version: '3.2'
+
+services:
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: example
+    ports:
+      - 5432:5432

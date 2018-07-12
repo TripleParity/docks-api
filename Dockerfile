@@ -1,6 +1,6 @@
-FROM node:9.8.0-alpine
+# TODO(egeldenhuys): Use multistage build to get rid of g++ and perhaps python
 
-MAINTAINER TripleParity
+FROM node:9.8.0-alpine
 
 RUN apk add --update python make g++ postgresql-client
 

@@ -16,8 +16,6 @@ Docks API
 ```
 
 ### Request new JWT [POST]
-
-
 Request a new JWT for use in Authenticated requests
 
 + Request (application/json)
@@ -45,9 +43,85 @@ Request a new JWT for use in Authenticated requests
                 "message": "Invalid username or password"
             }
 
+# Group User Management
+## User Collection [/users]
+
+### Get All Users [GET]
+Returns all users in the database.
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "data": [
+                    {
+                        "username": "bob"
+                    },
+                    {
+                        "username": "john"
+                    }
+                ]
+            }
+
+### Create User [POST]
+Create a new user
+
++ Request (application/json)
+
+    + Attributes
+        + username (string)
+        + password (string)
+
+    + Body
+
+            {
+                "username": "fred",
+                "password": "pass",
+            }
+
++ Response 200
++ Response 409
+    Username already exists
+
+    + Body
+
+## User [/users/{username}]
+
++ Parameters
+    + username (string) - The username used to login
+
+### Update User [PUT]
+
++ Request (application/json)
+
+    + Attributes
+        + password (string, optional)
+
+    + Body
+
+            {
+                "password": "BetterPass333"
+            }
+
++ Response 200
++ Response 404
+    User does not exist
+
+    + Body
+
+### Delete User [DELETE]
+Delete a user from the system
+
++ Response 200
++ Response 404
+    User does not exist
+
+    + Body
+
 # Group Docker
-## Containers [/docker]
-### List Containers [GET /docker/containers/json]
+## Services [/services]
+### List Services [GET /services]
 
 + Request
 
@@ -56,11 +130,6 @@ Request a new JWT for use in Authenticated requests
             Authorization: Bearer <jwt>
 
 + Response 200 (application/json)
-    Valid credentials
-
-    + Body
-
-            See Docker API
-
-+ Response 403 (application/json)
++ Response 406
++ Response 500
 
