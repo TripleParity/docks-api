@@ -29,7 +29,7 @@ app.set('view engine', 'jade');
 // Extract secret key for JWT signing from environmental variable JWT_SECRET
 const JWT_SECRET = process.env['JWT_SECRET'];
 if (JWT_SECRET === undefined || JWT_SECRET === '') {
-    console.warn('Warning: JWT secret not set! Change JWT_SECRET to the required JWT secret value.');
+  console.warn('Warning: JWT secret not set! Change JWT_SECRET to the required JWT secret value.');
 }
 
 
@@ -49,25 +49,25 @@ app.use(jwtMiddleware(JWT_SECRET, {path: ['/api/auth/token']}));
 app.use('/', index);
 app.use('/users', users);
 app.use(['/docker', '/docker/*'], dockerProxyRouter);
-app.use(['/api/stacks', '/api/stacks/*'], stacksApi);
+app.use(['/stacks', '/stacks/*'], stacksApi);
 app.use('/api/auth', auth);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-    let err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+  let err = new Error('Not Found');
+  err.status = 404;
+  next(err);
 });
 
 // error handler
 app.use(function(err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-    // render the error page
-    res.status(err.status || 500);
-    res.render('error');
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
 });
 
 /**
@@ -75,8 +75,8 @@ app.use(function(err, req, res, next) {
  *
  */
 async function initDatabase() {
-    console.log('Initializing database...');
-    await userManager.initDatabase();
+  console.log('Initializing database...');
+  await userManager.initDatabase();
 }
 
 module.exports = app;

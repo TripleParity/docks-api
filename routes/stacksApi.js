@@ -1,10 +1,15 @@
 const express = require('express');
 const router = new express.Router();
 
-// const fs = require('fs');
-
 /* Api endpoint to build and run a docker-compose file */
-router.all('/create', function(req, res, next) {
+
+// Get all stacks running in the Swarm
+router.get('/', function(req, res, next) {
+
+});
+
+// Deploy a new stack to the Swarm. The stack name should not exist
+router.post('/', function(req, res, next) {
   // const composeFileContents = req.body['composeFile'];
   // console.log(composeFileContents);
   //
