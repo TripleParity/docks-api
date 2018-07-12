@@ -41,16 +41,25 @@ sudo docker stack deploy -c docker-compose.yml docks-api
 ```
 
 ## Development
-### Using Node.js and Docker (Recommended)
+### Using Node.js and Docker
+
+Please see the security implications of [managing Docker as a non-root user](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user)
+
 ```shell
-sudo docker swarm init
+# Required to communicate with the Docker socket
+# without running npm as root
+sudo usermod -aG docker $USER
+
+# Log out and log back in or restart so that your group membership is re-evaluated.
+
+docker swarm init
 
 # Deploy postgres database
-sudo docker stack deploy -c docker-compose/db.yml docks-db
+docker stack deploy -c docker-compose/db.yml docks-db
 
 npm install
 
-# Run Docks API from source files and export env variables
+# Run Docks API from source and export env variables
 npm run start-dev-db
 ```
 
