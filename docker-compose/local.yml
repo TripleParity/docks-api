@@ -1,11 +1,11 @@
-# Deploy the latest version of docks-api from master branch
+# Used for deploying docks-api to a swarm from a local registry
 
 version: '3.2'
 
 services:
 
   api:
-    image: tripleparity/docks-api
+    image: 127.0.0.1:5000/docks-api:local
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
