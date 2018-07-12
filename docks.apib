@@ -67,18 +67,16 @@ Returns all users in the database.
 ### Create User [POST]
 Create a new user
 
++ Attributes
+    + username (string)
+    + password (string)
+
 + Request (application/json)
 
-    + Attributes
-        + username (string)
-        + password (string)
-
-    + Body
-
-            {
-                "username": "fred",
-                "password": "pass",
-            }
+        {
+            "username": "fred",
+            "password": "pass",
+        }
 
 + Response 200
 + Response 409
@@ -93,16 +91,14 @@ Create a new user
 
 ### Update User [PUT]
 
++ Attributes
+    + password (string, optional)
+
 + Request (application/json)
 
-    + Attributes
-        + password (string, optional)
-
-    + Body
-
-            {
-                "password": "BetterPass333"
-            }
+        {
+            "password": "BetterPass333"
+        }
 
 + Response 200
 + Response 404
@@ -119,35 +115,33 @@ Delete a user from the system
 
     + Body
 
-# Group Docker Stack
-## Stacks [/stacks]
+# Group Docker Stacks
+## Stack Collection [/stacks]
 ### List Stacks [GET]
 Get all stacks running in the Swarm
 
++ Attributes
+    + data (array)
+        + (object)
+            + stackName (string, required) - The unique name for the stack
+            + servicesCount (number, required) - The number of services running in the stack
+            
 + Response 200 (application/json)
 
-    + Attributes
-        + data (array)
-            + (object)
-                + stackName (string, required) - The unique name for the stack
-                + servicesCount (number, required) - The number of services running in the stack
+        {
+            "data": [
+                {
+                    "name": "docks-api",
+                    "servicesCount": 3
+                },
+                {
+                    "name": "docks-ui",
+                    "servicesCount": 1
+                }
+            ]
+        }
 
-    + Body
-
-            {
-                "data": [
-                    {
-                        "name": "docks-api",
-                        "servicesCount": 3
-                    },
-                    {
-                        "name": "docks-ui",
-                        "servicesCount": 1
-                    }
-                ]
-            }
-
-### Deploy Stack [POST]
+### Deploy New Stack [POST]
 Deploy a new stack to the Swarm. The stack name should not exist
 
 + Request (application/json)
@@ -168,6 +162,99 @@ Deploy a new stack to the Swarm. The stack name should not exist
     Stack name already exists
 
     + Body
+
+## Stack [/stacks/{stack_name}]
+### Update Existing Stack [PUT]
+
++ Attributes
+    + stackName (string, required) - Unique stack name
+    + stackFile (string, required) - Base64 encoded docker-compose file
+
++ Request (application/json)
+
+        {
+            "stackName": "docks-api",
+            "stackFile": "IyBEZXBsb3kgdG...V09SRD1leGFtcGxl"
+        }
+
++ Response 200
++ Response 404
+    Stack name does not exist
+
+    + Body
+
+### Remove Stack [DELETE]
+
++ Response 200
++ Response 404
+    Stack does not exist
+
+    + Body
+
+## Services in Stack [/stacks/{stack_name}/services]
+### Get Services in Stack [GET]
+
++ Attributes
+    + data (array)
+        + (object)
+            + id (string) - Service id
+            + name (string) - Service name
+            + mode (string) - Service mode
+            + replicas (string)
+            + image (string)
+            + ports (string)
+
++ Response 200 (application/json)
+
+        {
+            "data": {
+                [
+                    {
+                        "id": "kr07iblu94sl",
+                        "name": "docks-db_db",
+                        "mode": "replicated",
+                        "replicas": "1/1",
+                        "image": "postgres:latest",
+                        "ports": "*:5432->5432/tcp"
+
+                    }
+                ]
+            }
+        }
+
+## Tasks in Stack [/stacks/{stack_name}/tasks]
+### Get Tasks in Stack [GET]
+
++ Attributes
+    + data (array)
+        + (object)
+            + id (string)
+            + name (string)
+            + image (string)
+            + node (string)
+            + desiredState (string)
+            + currentState (string)
+            + error (string, optional)
+            + ports (string, optional)
+
++ Response 200 (application/json)
+
+        {
+            "data": [
+                {
+                    "id": "pqgf55qat18q6gl1m8nbl4bxh",
+                    "name": "docks-db_db.1",
+                    "image": "postgres:latest@sha256:d99f15cb8d0f47f0a6...4d1e25acb66ccf7bd7bd8479",
+                    "node": "leonidas",
+                    "desiredState": "Shutdown",
+                    "currentState": "Failed about an hour ago",
+                    "error": "starting container failed: Address already in use"
+                }
+            ]
+        }
+
+    
++ Response 404
 
 # Group Docker
 ## Services [/services]
