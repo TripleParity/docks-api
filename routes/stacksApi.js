@@ -30,11 +30,11 @@ router.post('/', function(req, res, next) {
   const stackFileBuffer = Buffer.from(req.body.stackFile, 'base64');
 
   // Generate temporary file name
-  const tempFileName = util.format('/tmp/%d-%d.yml', Date.now(),
+  const tempFilePath = util.format('/tmp/%d-%d.yml', Date.now(),
     Math.floor( Math.random() * 100) );
 
   // Write stack to actual temporary file
-  fs.writeFile(tempFileName, stackFileBuffer, function(err) {
+  fs.writeFile(tempFilePath, stackFileBuffer, (err) => {
     if (err) {
       res.status(500).send('Error saving stack file to disk');
       console.log(err);
@@ -43,6 +43,14 @@ router.post('/', function(req, res, next) {
 
     // TODO(devosray): Deploy new stack file?
     res.status(200).send('Saved file to disk');
+
+    // Remove temporary file
+    fs.unlink(tempFilePath, (err) => {
+      if (err) {
+        console.log('Error while removing temporary file ' +
+          tempFilePath + ': ' + err);
+      }
+    });
   });
 
   // const composeFileContents = req.body['composeFile'];
