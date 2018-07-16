@@ -2,9 +2,12 @@ const express = require('express');
 const router = new express.Router();
 const fs = require('fs');
 const util = require('util');
-const {execFile} = require('child_process');
+const {execFile, exec} = require('child_process');
 
 /* Api endpoint to build and run a docker-compose file */
+
+// Timeout in milliseconds for CLI calls to docker
+const DOCKER_CLI_TIMEOUT = 5000;
 
 // Get all stacks running in the Swarm
 router.get('/', function(req, res, next) {
@@ -12,7 +15,7 @@ router.get('/', function(req, res, next) {
 });
 
 // Deploy a new stack to the Swarm. The stack name should not exist
-router.post('/', function(req, res, next) {
+router.post('/', async function(req, res, next) {
   if (!req.body.hasOwnProperty('stackName') || req.body['stackName'] === '') {
     res.status(400).send('Required parameter stackName missing');
     return;
@@ -26,6 +29,10 @@ router.post('/', function(req, res, next) {
   console.log('Preparing to deplay stack with name ' + req.body.stackName);
 
   // TODO: Preemptively prevent stack deployment if stack name is invalid
+
+  // Check if stack exists. If so, throw error
+  const stackList = await retrieveStackList();
+  console.log(stackList);
 
   // Base64 decode stack file
   const stackFileBuffer = Buffer.from(req.body.stackFile, 'base64');
@@ -45,7 +52,7 @@ router.post('/', function(req, res, next) {
     // Call docker CLI to deploy stack
     execFile('docker',
       ['stack', 'deploy', '-c', tempFilePath, req.body.stackName],
-      {timeout: 5000},
+      {timeout: DOCKER_CLI_TIMEOUT},
       (error, stdout, stderr) => {
         if (error) {
           console.log('Error deploying docker stack: ' + error);
@@ -64,5 +71,33 @@ router.post('/', function(req, res, next) {
       });
   });
 });
+
+/**
+ * @typedef {object} StackListObject - A single entry in the output when
+ * listing active stacks in docker.
+ * @property {string} stackName - The unique name for the stack
+ * @property {number} servicesCount - The number of services
+ * running in the stack
+ */
+
+/**
+ * Helper function to fetch the current stacks deployed on the swarm
+ * @return {Promise<[StackListObject]>}
+ */
+function retrieveStackList() {
+  return new Promise((resolve) => {
+    let stackList = [];
+    execFile('docker', ['stack', 'ls'],
+      {timeout: DOCKER_CLI_TIMEOUT},
+      (error, stdout, stderr) => {
+        if (error) {
+          console.log('Error fetching docker stacks: ' + error);
+        } else {
+          console.log(stdout);
+        }
+        resolve(stackList);
+      });
+  });
+}
 
 module.exports = router;
