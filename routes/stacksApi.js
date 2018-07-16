@@ -1,6 +1,7 @@
 const express = require('express');
 const router = new express.Router();
 const fs = require('fs');
+const util = require('util');
 
 /* Api endpoint to build and run a docker-compose file */
 
@@ -28,9 +29,12 @@ router.post('/', function(req, res, next) {
   // Base64 decode stack file
   const stackFileBuffer = Buffer.from(req.body.stackFile, 'base64');
 
+  // Generate temporary file name
+  const tempFileName = util.format('/tmp/%d-%d.yml', Date.now(),
+    Math.floor( Math.random() * 100) );
+
   // Write stack to actual temporary file
-  // TODO(devosray): GUID file names?
-  fs.writeFile('/tmp/stackFile.yml', stackFileBuffer, function(err) {
+  fs.writeFile(tempFileName, stackFileBuffer, function(err) {
     if (err) {
       res.status(500).send('Error saving stack file to disk');
       console.log(err);
