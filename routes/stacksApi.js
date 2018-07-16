@@ -2,6 +2,7 @@ const express = require('express');
 const router = new express.Router();
 const fs = require('fs');
 const util = require('util');
+const {execFile} = require('child_process');
 
 /* Api endpoint to build and run a docker-compose file */
 
@@ -22,9 +23,9 @@ router.post('/', function(req, res, next) {
     return;
   }
 
-  // Debug print information
-  console.log(req.body.stackName);
-  console.log(req.body.stackFile);
+  console.log('Preparing to deplay stack with name ' + req.body.stackName);
+
+  // TODO: Preemptively prevent stack deployment if stack name is invalid
 
   // Base64 decode stack file
   const stackFileBuffer = Buffer.from(req.body.stackFile, 'base64');
@@ -41,50 +42,27 @@ router.post('/', function(req, res, next) {
       return;
     }
 
-    // TODO(devosray): Deploy new stack file?
-    res.status(200).send('Saved file to disk');
+    // Call docker CLI to deploy stack
+    execFile('docker',
+      ['stack', 'deploy', '-c', tempFilePath, req.body.stackName],
+      {timeout: 5000},
+      (error, stdout, stderr) => {
+        if (error) {
+          console.log('Error deploying docker stack: ' + error);
+          res.status(500).send(stderr);
+        } else {
+          res.status(200).send(stdout);
+        }
 
-    // Remove temporary file
-    fs.unlink(tempFilePath, (err) => {
-      if (err) {
-        console.log('Error while removing temporary file ' +
-          tempFilePath + ': ' + err);
-      }
-    });
+        // Remove temporary file after the CLI call ends
+        fs.unlink(tempFilePath, (err) => {
+          if (err) {
+            console.log('Error while removing temporary file ' +
+              tempFilePath + ': ' + err);
+          }
+        });
+      });
   });
-
-  // const composeFileContents = req.body['composeFile'];
-  // console.log(composeFileContents);
-  //
-  // if (composeFileContents === "") {
-  //     res.status(400);
-  //     res.write("Error while parsing compose file.");
-  //     return;
-  // }
-  //
-  // fs.writeFile("/tmp/testfile.yml", composeFileContents, function (err) {
-  //     if (err) {
-  //         res.status(500);
-  //         res.write("Error while saving compose file.");
-  //         return;
-  //     }
-  //
-  //     res.status(200);
-  //     res.write("Compose file saved.");
-  // })
-
-  // const {exec} = require('child_process');
-  // exec('docker-compose -f /app/demo-docker-compose.yml up --build', (err, stdout, stderr) => {
-  //   if (err) {
-  //     // node couldn't execute the command
-  //     console.log('Error: ' + err);
-  //     return;
-  //   }
-  //
-  //   // the *entire* stdout and stderr (buffered)
-  //   console.log(`stdout: ${stdout}`);
-  //   console.log(`stderr: ${stderr}`);
-  // });
 });
 
 module.exports = router;
