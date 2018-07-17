@@ -12,8 +12,11 @@ const os = require('os');
 const DOCKER_CLI_TIMEOUT = 5000;
 
 // Get all stacks running in the Swarm
-router.get('/', function(req, res, next) {
-
+router.get('/', async (req, res, next) => {
+  const stackList = await retrieveStackList();
+  res.status(200).send({
+    data: stackList,
+  });
 });
 
 // Deploy a new stack to the Swarm. The stack name should not exist
@@ -93,7 +96,7 @@ async function retrieveStackList() {
 
   if (error) {
     console.log('Error fetching docker stacks: ' + error);
-    return [];
+    return stackList;
   }
 
   // Parse output
