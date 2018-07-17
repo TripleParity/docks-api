@@ -2,7 +2,7 @@
 
 FROM node:9.8.0-alpine
 
-RUN apk add --update python make g++ postgresql-client
+RUN apk add --update python make g++ postgresql-client docker
 
 EXPOSE 8080
 
