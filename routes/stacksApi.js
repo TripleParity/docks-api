@@ -35,9 +35,14 @@ router.post('/', async function(req, res, next) {
 
   // TODO: Preemptively prevent stack deployment if stack name is invalid
 
-  // Check if stack exists. If so, throw error
+  // Check if stack exists. If so, return error
   const stackList = await retrieveStackList();
-  console.log(stackList);
+  for (let i = 0; i < stackList.length; i++) {
+    if (stackList[i].stackName === req.body.stackName) {
+      res.status(409).send('Stack name already exists');
+      return;
+    }
+  }
 
   // Base64 decode stack file
   const stackFileBuffer = Buffer.from(req.body.stackFile, 'base64');
@@ -75,6 +80,39 @@ router.post('/', async function(req, res, next) {
         });
       });
   });
+});
+
+// Remove stack from swarm
+router.delete('/:stackName', async (req, res) => {
+  // Test if stack name exists
+  let foundStackName = false;
+  const stackList = await retrieveStackList();
+  for (let i = 0; i < stackList.length; i++) {
+    if (stackList[i].stackName === req.params.stackName) {
+      foundStackName = true;
+      break;
+    }
+  }
+
+  // If the stack doesn't exist, throw 404 response
+  if (!foundStackName) {
+    res.status(404).send('Stack with name ' + req.params.stackName
+      + ' doesn\'t exist');
+    return;
+  }
+
+  // Call docker CLI to delete stack
+  const {error, stdout} = await asyncExecFile(
+    'docker', ['stack', 'rm', req.params.stackName],
+    {timeout: DOCKER_CLI_TIMEOUT});
+
+  if (error) {
+    console.error('Error while deleting stack: ' + error);
+    res.status(500).send(error);
+    return;
+  }
+
+  res.status(200).send(stdout);
 });
 
 /**
