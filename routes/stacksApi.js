@@ -93,17 +93,24 @@ router.delete('/:stackName', async (req, res) => {
   }
 
   // Call docker CLI to delete stack
-  const {error, stdout} = await execFileAsync(
-    'docker', ['stack', 'rm', req.params.stackName],
-    {timeout: DOCKER_CLI_TIMEOUT});
-
-  if (error) {
-    console.error('Error while deleting stack: ' + error);
-    res.status(500).send(error);
+  let cliResponse = {};
+  try {
+    cliResponse = await execFileAsync(
+      'docker', ['stack', 'rm', req.params.stackName],
+      {timeout: DOCKER_CLI_TIMEOUT});
+  } catch (error) {
+    console.error('Error while spawning docker: ' + error + '. '
+      + cliResponse.error + ' (is docker installed?)');
     return;
   }
 
-  res.status(200).send(stdout);
+  if (cliResponse.error) {
+    console.error('Error while deleting stack: ' + cliResponse.error);
+    res.status(500).send(cliResponse.error);
+    return;
+  }
+
+  res.status(200).send(cliResponse.stdout);
 });
 
 /**
@@ -120,16 +127,25 @@ router.delete('/:stackName', async (req, res) => {
  */
 async function retrieveStackList() {
   let stackList = [];
-  const {error, stdout} = await execFileAsync(
-    'docker', ['stack', 'ls'], {timeout: DOCKER_CLI_TIMEOUT});
 
-  if (error) {
-    console.log('Error fetching docker stacks: ' + error);
+  let cliResponse = {};
+
+  try {
+    cliResponse = await execFileAsync(
+      'docker', ['stack', 'ls'], {timeout: DOCKER_CLI_TIMEOUT});
+  } catch (error) {
+    console.error('Error while spawning docker: ' + error + '. '
+      + cliResponse.error + '( is docker installed?)');
+    return stackList;
+  }
+
+  if (cliResponse.error) {
+    console.log('Error fetching docker stacks: ' + cliResponse.error);
     return stackList;
   }
 
   // Parse output
-  const outputLines = stdout.split(os.EOL);
+  const outputLines = cliResponse.stdout.split(os.EOL);
 
   // Skip first line (header)
   for (let i = 1; i < outputLines.length; i++) {
