@@ -54,12 +54,14 @@ router.post('/', async function(req, res, next) {
 
 // Update an existing stack on the swarm
 router.put('/:stackName', async function(req, res) {
-  if (!req.params.hasOwnProperty('stackName') || req.params['stackName'] === '') {
+  if (!req.params.hasOwnProperty('stackName')
+    || req.params['stackName'] === '') {
     res.status(400).send('Required parameter stackName missing');
     return;
   }
 
-  if (!req.body.hasOwnProperty('stackFile') || req.body['stackFile'] === '') {
+  if (!req.body.hasOwnProperty('stackFile')
+    || req.body['stackFile'] === '') {
     res.status(400).send('Required parameter stackFile missing');
     return;
   }
