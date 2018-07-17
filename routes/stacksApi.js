@@ -55,6 +55,44 @@ router.post('/', async function(req, res, next) {
   }
 });
 
+// Update an existing stack on the swarm
+router.put('/', async function(req, res) {
+  if (!req.body.hasOwnProperty('stackName') || req.body['stackName'] === '') {
+    res.status(400).send('Required parameter stackName missing');
+    return;
+  }
+
+  if (!req.body.hasOwnProperty('stackFile') || req.body['stackFile'] === '') {
+    res.status(400).send('Required parameter stackFile missing');
+    return;
+  }
+
+  // Check if stack exists. If not, return error
+  let found = false;
+  const stackList = await retrieveStackList();
+  for (let i = 0; i < stackList.length; i++) {
+    if (stackList[i].stackName === req.body.stackName) {
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    res.status(404).send('Could not find stack with name ' +
+     req.body.stackName + '.');
+    return;
+  }
+
+  // Update stack
+  try {
+    const stdout = await dockerCLIDeployStack(
+      req.body.stackName, req.body.stackFile);
+    res.status(200).send(stdout);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
 // Remove stack from swarm
 router.delete('/:stackName', async (req, res) => {
   // Test if stack name exists
@@ -157,24 +195,29 @@ async function dockerCLIDeployStack(stackName, stackFileBase64) {
   }
 
   // Call docker CLI to deploy stack
-  let {error, stdout, stderr} = await execFileAsync('docker',
-    ['stack', 'deploy', '-c', tempFilePath, stackName],
-    {timeout: DOCKER_CLI_TIMEOUT});
+  let response = '';
+  try {
+    let {stdout} = await execFileAsync('docker',
+      ['stack', 'deploy', '-c', tempFilePath, stackName],
+      {timeout: DOCKER_CLI_TIMEOUT});
 
-  if (error) {
-    console.log('Error deploying docker stack: ' + error);
-    throw stderr;
+    response = stdout;
+  } catch (error) {
+    if (error) {
+      console.log('Error deploying docker stack: ' + error);
+      throw error.stderr;
+    }
+  } finally {
+    // Remove temporary file after the CLI call ends
+    unlink(tempFilePath, (err) => {
+      if (err) {
+        console.log('Error while removing temporary file ' +
+          tempFilePath + ': ' + err);
+      }
+    });
   }
 
-  // Remove temporary file after the CLI call ends
-  unlink(tempFilePath, (err) => {
-    if (err) {
-      console.log('Error while removing temporary file ' +
-        tempFilePath + ': ' + err);
-    }
-  });
-
-  return stdout;
+  return response;
 }
 
 module.exports = router;
