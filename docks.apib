@@ -120,44 +120,45 @@ Delete a user from the system
 ### List Stacks [GET]
 Get all stacks running in the Swarm
 
-+ Attributes
-    + data (array)
-        + (object)
-            + stackName (string, required) - The unique name for the stack
-            + servicesCount (number, required) - The number of services running in the stack
-            
 + Response 200 (application/json)
 
-        {
-            "data": [
-                {
-                    "name": "docks-api",
-                    "servicesCount": 3
-                },
-                {
-                    "name": "docks-ui",
-                    "servicesCount": 1
-                }
-            ]
-        }
-
-### Deploy New Stack [POST]
-Deploy a new stack to the Swarm. The stack name should not exist
-
-+ Request (application/json)
-
     + Attributes
-        + stackName (string, required) - Unique stack name
-        + stackFile (string, required) - Base64 encoded docker-compose file
+        + data (array)
+            + (object)
+                + stackName: `docks-api` (string, required) - The unique name for the stack
+                + servicesCount: 3 (number, required) - The number of services running in the stack
 
     + Body
 
             {
-                "stackName": "docks-api",
-                "stackFile": "IyBEZXBsb3kgdG...V09SRD1leGFtcGxl"
+                "data": [
+                    {
+                        "stackName": "docks-api",
+                        "servicesCount": 3
+                    },
+                    {
+                        "stackName": "docks-ui",
+                        "servicesCount": 1
+                    }
+                ]
             }
 
+### Deploy New Stack [POST]
+Deploy a new stack to the Swarm. The stack name should not exist
+
+
++ Request (application/json)
+
+    + Attributes
+        + stackName: `docks-api` (string, required) - Unique stack name
+        + stackFile: IyBEZXBsb3kgdG...V09SRD1leGFtcGxl (string, required)
+        Base64 encoded docker-compose file
+
 + Response 200
+    Stack created successfully
+
+    + Body
+
 + Response 409
     Stack name already exists
 
