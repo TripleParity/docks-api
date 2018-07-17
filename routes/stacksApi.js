@@ -53,8 +53,8 @@ router.post('/', async function(req, res, next) {
 });
 
 // Update an existing stack on the swarm
-router.put('/', async function(req, res) {
-  if (!req.body.hasOwnProperty('stackName') || req.body['stackName'] === '') {
+router.put('/:stackName', async function(req, res) {
+  if (!req.params.hasOwnProperty('stackName') || req.params['stackName'] === '') {
     res.status(400).send('Required parameter stackName missing');
     return;
   }
@@ -65,7 +65,7 @@ router.put('/', async function(req, res) {
   }
 
   // Check if stack exists. If not, return error
-  if (!await doesStackExistInSwarm(req.body.stackName)) {
+  if (!await doesStackExistInSwarm(req.params.stackName)) {
     res.status(404).send('Could not find stack with name ' +
      req.body.stackName + '.');
     return;
@@ -74,7 +74,7 @@ router.put('/', async function(req, res) {
   // Update stack
   try {
     const stdout = await dockerCLIDeployStack(
-      req.body.stackName, req.body.stackFile);
+      req.params.stackName, req.body.stackFile);
     res.status(200).send(stdout);
   } catch (err) {
     res.status(500).send(err);
