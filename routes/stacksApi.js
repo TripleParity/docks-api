@@ -37,12 +37,9 @@ router.post('/', async function(req, res, next) {
   console.log('Preparing to deplay stack with name ' + req.body.stackName);
 
   // Check if stack exists. If so, return error
-  const stackList = await retrieveStackList();
-  for (let i = 0; i < stackList.length; i++) {
-    if (stackList[i].stackName === req.body.stackName) {
-      res.status(409).send('Stack name already exists');
-      return;
-    }
+  if (await doesStackExistInSwarm(req.body.stackName)) {
+    res.status(409).send('Stack name already exists');
+    return;
   }
 
   // Deploy stack
@@ -68,16 +65,7 @@ router.put('/', async function(req, res) {
   }
 
   // Check if stack exists. If not, return error
-  let found = false;
-  const stackList = await retrieveStackList();
-  for (let i = 0; i < stackList.length; i++) {
-    if (stackList[i].stackName === req.body.stackName) {
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) {
+  if (!await doesStackExistInSwarm(req.body.stackName)) {
     res.status(404).send('Could not find stack with name ' +
      req.body.stackName + '.');
     return;
@@ -95,18 +83,8 @@ router.put('/', async function(req, res) {
 
 // Remove stack from swarm
 router.delete('/:stackName', async (req, res) => {
-  // Test if stack name exists
-  let foundStackName = false;
-  const stackList = await retrieveStackList();
-  for (let i = 0; i < stackList.length; i++) {
-    if (stackList[i].stackName === req.params.stackName) {
-      foundStackName = true;
-      break;
-    }
-  }
-
   // If the stack doesn't exist, throw 404 response
-  if (!foundStackName) {
+  if (!await doesStackExistInSwarm(req.params.stackName)) {
     res.status(404).send('Stack with name ' + req.params.stackName
       + ' doesn\'t exist');
     return;
@@ -166,6 +144,23 @@ async function retrieveStackList() {
   }
 
   return stackList;
+}
+
+/**
+ * Test if a certain stack exists in the swarm
+ * @param {String} stackName - Name of stack to test for
+ * @return {Promise<boolean>} - Does the stack exist?
+ */
+async function doesStackExistInSwarm(stackName) {
+  let foundStackName = false;
+  const stackList = await retrieveStackList();
+  for (let i = 0; i < stackList.length; i++) {
+    if (stackList[i].stackName === stackName) {
+      foundStackName = true;
+      break;
+    }
+  }
+  return foundStackName;
 }
 
 /**
