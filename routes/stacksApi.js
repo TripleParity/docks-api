@@ -2,7 +2,9 @@ const express = require('express');
 const router = new express.Router();
 const fs = require('fs');
 const util = require('util');
-const {execFile, exec} = require('child_process');
+const {execFile} = require('child_process');
+const asyncExecFile = util.promisify(execFile);
+const os = require('os');
 
 /* Api endpoint to build and run a docker-compose file */
 
@@ -84,20 +86,34 @@ router.post('/', async function(req, res, next) {
  * Helper function to fetch the current stacks deployed on the swarm
  * @return {Promise<[StackListObject]>}
  */
-function retrieveStackList() {
-  return new Promise((resolve) => {
-    let stackList = [];
-    execFile('docker', ['stack', 'ls'],
-      {timeout: DOCKER_CLI_TIMEOUT},
-      (error, stdout, stderr) => {
-        if (error) {
-          console.log('Error fetching docker stacks: ' + error);
-        } else {
-          console.log(stdout);
-        }
-        resolve(stackList);
-      });
-  });
+async function retrieveStackList() {
+  let stackList = [];
+  const {error, stdout} = await asyncExecFile(
+    'docker', ['stack', 'ls'], {timeout: DOCKER_CLI_TIMEOUT});
+
+  if (error) {
+    console.log('Error fetching docker stacks: ' + error);
+    return [];
+  }
+
+  // Parse output
+  const outputLines = stdout.split(os.EOL);
+
+  // Skip first line (header)
+  for (let i = 1; i < outputLines.length; i++) {
+    const nameCountSplit = outputLines[i].match(/\S+/g) || [];
+    if (nameCountSplit.length !== 2) {
+      continue;
+    }
+
+    // Push new @StackListObject
+    stackList.push({
+      stackName: nameCountSplit[0],
+      servicesCount: parseInt(nameCountSplit[1]),
+    });
+  }
+
+  return stackList;
 }
 
 module.exports = router;
