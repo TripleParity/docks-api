@@ -1,10 +1,13 @@
 const express = require('express');
 const router = new express.Router();
-const fs = require('fs');
 const util = require('util');
-const {execFile} = require('child_process');
-const asyncExecFile = util.promisify(execFile);
 const os = require('os');
+
+const {unlink, writeFile} = require('fs');
+const writeFileAsync = util.promisify(writeFile);
+
+const {execFile} = require('child_process');
+const execFileAsync = util.promisify(execFile);
 
 /* Api endpoint to build and run a docker-compose file */
 
@@ -33,8 +36,6 @@ router.post('/', async function(req, res, next) {
 
   console.log('Preparing to deplay stack with name ' + req.body.stackName);
 
-  // TODO: Preemptively prevent stack deployment if stack name is invalid
-
   // Check if stack exists. If so, return error
   const stackList = await retrieveStackList();
   for (let i = 0; i < stackList.length; i++) {
@@ -44,42 +45,14 @@ router.post('/', async function(req, res, next) {
     }
   }
 
-  // Base64 decode stack file
-  const stackFileBuffer = Buffer.from(req.body.stackFile, 'base64');
-
-  // Generate temporary file name
-  const tempFilePath = util.format('/tmp/%d-%d.yml', Date.now(),
-    Math.floor( Math.random() * 100) );
-
-  // Write stack to actual temporary file
-  fs.writeFile(tempFilePath, stackFileBuffer, (err) => {
-    if (err) {
-      res.status(500).send('Error saving stack file to disk');
-      console.log(err);
-      return;
-    }
-
-    // Call docker CLI to deploy stack
-    execFile('docker',
-      ['stack', 'deploy', '-c', tempFilePath, req.body.stackName],
-      {timeout: DOCKER_CLI_TIMEOUT},
-      (error, stdout, stderr) => {
-        if (error) {
-          console.log('Error deploying docker stack: ' + error);
-          res.status(500).send(stderr);
-        } else {
-          res.status(200).send(stdout);
-        }
-
-        // Remove temporary file after the CLI call ends
-        fs.unlink(tempFilePath, (err) => {
-          if (err) {
-            console.log('Error while removing temporary file ' +
-              tempFilePath + ': ' + err);
-          }
-        });
-      });
-  });
+  // Deploy stack
+  try {
+    const stdout = await dockerCLIDeployStack(
+      req.body.stackName, req.body.stackFile);
+    res.status(200).send(stdout);
+  } catch (err) {
+    res.status(500).send(err);
+  }
 });
 
 // Remove stack from swarm
@@ -102,7 +75,7 @@ router.delete('/:stackName', async (req, res) => {
   }
 
   // Call docker CLI to delete stack
-  const {error, stdout} = await asyncExecFile(
+  const {error, stdout} = await execFileAsync(
     'docker', ['stack', 'rm', req.params.stackName],
     {timeout: DOCKER_CLI_TIMEOUT});
 
@@ -129,7 +102,7 @@ router.delete('/:stackName', async (req, res) => {
  */
 async function retrieveStackList() {
   let stackList = [];
-  const {error, stdout} = await asyncExecFile(
+  const {error, stdout} = await execFileAsync(
     'docker', ['stack', 'ls'], {timeout: DOCKER_CLI_TIMEOUT});
 
   if (error) {
@@ -155,6 +128,53 @@ async function retrieveStackList() {
   }
 
   return stackList;
+}
+
+/**
+ * Deploy a stack-file on the swarm using the Docker CLI
+ * @param {String} stackName - Name of the stack to create / update
+ * @param {String} stackFileBase64 - Base64 encoded compose file
+ * @return {Promise<String>} - On success, returns stdout from CLI call
+ *
+ * @throws {String} Error while trying to deploy stack;
+ * std-error will be returned.
+ */
+async function dockerCLIDeployStack(stackName, stackFileBase64) {
+  // TODO: Preemptively prevent stack deployment if stack name is invalid
+
+  // Base64 decode stack file
+  const stackFileBuffer = Buffer.from(stackFileBase64, 'base64');
+
+  // Generate temporary file name
+  const tempFilePath = util.format('/tmp/%d-%d.yml', Date.now(),
+    Math.floor( Math.random() * 100) );
+
+  // Write stack to temporary file
+  const writeError = await writeFileAsync(tempFilePath, stackFileBuffer);
+  if (writeError) {
+    console.log('Error while writing stack to disk: ' + writeError);
+    throw writeError;
+  }
+
+  // Call docker CLI to deploy stack
+  let {error, stdout, stderr} = await execFileAsync('docker',
+    ['stack', 'deploy', '-c', tempFilePath, stackName],
+    {timeout: DOCKER_CLI_TIMEOUT});
+
+  if (error) {
+    console.log('Error deploying docker stack: ' + error);
+    throw stderr;
+  }
+
+  // Remove temporary file after the CLI call ends
+  unlink(tempFilePath, (err) => {
+    if (err) {
+      console.log('Error while removing temporary file ' +
+        tempFilePath + ': ' + err);
+    }
+  });
+
+  return stdout;
 }
 
 module.exports = router;
