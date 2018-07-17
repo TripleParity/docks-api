@@ -170,18 +170,16 @@ Deploy a new stack to the Swarm. The stack name should not exist
 
 ### Update Existing Stack [PUT]
 
-+ Attributes
-    + stackName (string, required) - Unique stack name
-    + stackFile (string, required) - Base64 encoded docker-compose file
-
 + Request (application/json)
-
-        {
-            "stackName": "docks-api",
-            "stackFile": "IyBEZXBsb3kgdG...V09SRD1leGFtcGxl"
-        }
+    + Attributes
+        + stackFile: IyBEZXBsb3kgdG...V09SRD1leGFtcGxl (string, required)
+        Base64 encoded docker-compose file
 
 + Response 200
+    Stack updated successfully
+
+    + Body
+
 + Response 404
     Stack name does not exist
 
