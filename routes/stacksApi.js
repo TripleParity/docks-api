@@ -162,6 +162,55 @@ router.get('/:stackName/services', async (req, res) => {
   res.status(200).send(responseObject);
 });
 
+// List all the tasks in the stack
+router.get('/:taskName/tasks', async (req, res) => {
+  // Ensure the taskname is valid and exists
+  if (!await doesStackExistInSwarm(req.params.taskName)) {
+    res.status(404).send('Stack with name ' + req.params.taskName
+      + ' doesn\'t exist');
+    return;
+  }
+
+  // Get a list of IDs for the tasks in the stack
+  let tasksCliResponse = {};
+  try {
+    tasksCliResponse = await execFileAsync(
+      'docker', ['stack', 'ps', req.params.taskName,
+        '--format', '{{.ID}}'],
+      {timeout: DOCKER_CLI_TIMEOUT});
+  } catch (error) {
+    console.error('Error while fetching list of tasks: ' + error);
+    res.status(500).send(error);
+    return;
+  }
+
+  // Split response
+  const taskIDList = tasksCliResponse.stdout.split(os.EOL);
+
+  // For every ID, fetch its details from the Docker api
+  let inspectPromises = [];
+  for (let id of taskIDList) {
+    if (id.length > 0) {
+      inspectPromises.push(inspectTaskAxios(id));
+    }
+  }
+
+  // Wait for all promises to resolve
+  let responseObject = {data: []};
+  for (let promise of inspectPromises) {
+    const httpResponse = await promise;
+    if (httpResponse.status !== 200) {
+      continue;
+    }
+
+    responseObject.data.push(httpResponse.data);
+  }
+
+  // Return response
+  res.status(200).send(responseObject);
+});
+
+
 /**
  * @typedef {object} StackListObject - A single entry in the output when
  * listing active stacks in docker.
@@ -292,7 +341,7 @@ async function dockerCLIDeployStack(stackName, stackFileBase64) {
  */
 async function inspectServiceAxios(serviceID) {
   try {
-    return await axios.get('/services/byj4j3fyvogf', {
+    return await axios.get('/services/' + serviceID, {
       socketPath: '/var/run/docker.sock',
       timeout: DOCKER_CLI_TIMEOUT,
       headers: {
@@ -304,5 +353,29 @@ async function inspectServiceAxios(serviceID) {
     throw error;
   }
 }
+
+/**
+ * Given the ID of a task, this helper function will fetch the task
+ * details from the Docker API (/tasks/{id})
+ * @param {string} taskID - ID of the service
+ * @return {Promise<Object>} - Returns the Axios response
+ *
+ * @throws {Object} Any errors returned from the Docker API
+ */
+async function inspectTaskAxios(taskID) {
+  try {
+    return await axios.get('/tasks/' + taskID, {
+      socketPath: '/var/run/docker.sock',
+      timeout: DOCKER_CLI_TIMEOUT,
+      headers: {
+        'Host': '',
+      },
+    });
+  } catch (error) {
+    console.error('Error while fetching task details: ' + error);
+    throw error;
+  }
+}
+
 
 module.exports = router;
