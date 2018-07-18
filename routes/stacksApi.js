@@ -2,11 +2,12 @@ const express = require('express');
 const router = new express.Router();
 const util = require('util');
 const os = require('os');
+const axios = require('axios');
 
 const {unlink, writeFile} = require('fs');
 const writeFileAsync = util.promisify(writeFile);
 
-const {execFile} = require('child_process');
+const {execFile, exec} = require('child_process');
 const execFileAsync = util.promisify(execFile);
 
 /* Api endpoint to build and run a docker-compose file */
@@ -111,6 +112,54 @@ router.delete('/:stackName', async (req, res) => {
   }
 
   res.status(200).send(cliResponse.stdout);
+});
+
+// List all the services in the stack
+router.get('/:stackName/services', async (req, res) => {
+  // Ensure the stackname is valid and exists
+  if (!await doesStackExistInSwarm(req.params.stackName)) {
+    res.status(404).send('Stack with name ' + req.params.stackName
+      + ' doesn\'t exist');
+    return;
+  }
+
+  // Get a list of IDs for the services in the stack
+  let servicesCliResponse = {};
+  try {
+    servicesCliResponse = await execFileAsync(
+      'docker', ['stack', 'services', req.params.stackName,
+        '--format', '{{.ID}}'],
+      {timeout: DOCKER_CLI_TIMEOUT});
+  } catch (error) {
+    console.error('Error while fetching list of services: ' + error);
+    res.status(500).send(error);
+    return;
+  }
+
+  // Split response
+  const serviceIDList = servicesCliResponse.stdout.split(os.EOL);
+
+  // For every ID, fetch its details from the Docker api
+  let inspectPromises = [];
+  for (let id of serviceIDList) {
+    if (id.length > 0) {
+      inspectPromises.push(inspectServiceAxios(id));
+    }
+  }
+
+  // Wait for all promises to resolve
+  let responseObject = {data: []};
+  for (let promise of inspectPromises) {
+    const httpResponse = await promise;
+    if (httpResponse.status !== 200) {
+      continue;
+    }
+
+    responseObject.data.push(httpResponse.data);
+  }
+
+  // Return response
+  res.status(200).send(responseObject);
 });
 
 /**
@@ -231,6 +280,29 @@ async function dockerCLIDeployStack(stackName, stackFileBase64) {
   }
 
   return response;
+}
+
+/**
+ * Given the ID of a service, this helper function will fetch the service
+ * details from the Docker API (/services/{id})
+ * @param {string} serviceID - ID of the service
+ * @return {Promise<Object>} - Returns the Axios response
+ *
+ * @throws {Object} Any errors returned from the Docker API
+ */
+async function inspectServiceAxios(serviceID) {
+  try {
+    return await axios.get('/services/byj4j3fyvogf', {
+      socketPath: '/var/run/docker.sock',
+      timeout: DOCKER_CLI_TIMEOUT,
+      headers: {
+        'Host': '',
+      },
+    });
+  } catch (error) {
+    console.error('Error while fetching service details: ' + error);
+    throw error;
+  }
 }
 
 module.exports = router;
