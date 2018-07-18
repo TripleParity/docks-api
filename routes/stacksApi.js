@@ -7,7 +7,7 @@ const axios = require('axios');
 const {unlink, writeFile} = require('fs');
 const writeFileAsync = util.promisify(writeFile);
 
-const {execFile, exec} = require('child_process');
+const {execFile} = require('child_process');
 const execFileAsync = util.promisify(execFile);
 
 /* Api endpoint to build and run a docker-compose file */
