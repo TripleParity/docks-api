@@ -194,66 +194,52 @@ Deploy a new stack to the Swarm. The stack name should not exist
     + Body
 
 ### Get Services in Stack [GET /stacks/{stackName}/services]
+
+Returns an array of Services associated with the given stack from Docker API.
+
+The Schema for the service is defined in the Docker API, the Schema displayed
+here is only for demonstration purposes.
+
 + Parameters
     + stackName (string) - The unique stack name
 
-+ Attributes
-    + data (array)
-        + (object)
-            + id (string) - Service id
-            + name (string) - Service name
-            + mode (string) - Service mode
-            + replicas (string)
-            + image (string)
-            + ports (string)
-
 + Response 200 (application/json)
 
-        {
-            "data": [
-                {
-                    "id": "kr07iblu94sl",
-                    "name": "docks-db_db",
-                    "mode": "replicated",
-                    "replicas": "1/1",
-                    "image": "postgres:latest",
-                    "ports": "*:5432->5432/tcp"
+    + Attributes
+        + data (array[object])
+            + (object)
+                + ID (string)
+                + Version (object)
+                + CreatedAt (string)
+                + UpdatedAt (string)
+                + Spec (object)
+                + Endpoint (object)
+                
 
-                }
-            ]
-        }
 
 ### Get Tasks in Stack [GET /stacks/{stackName}/tasks]
+
+Returns an array of Tasks associated with the given stack.
+
+The Schema for the tasks is defined in the Docker API, the Schema displayed
+here is only for demonstration purposes.
+
 + Parameters
     + stackName (string) - The unique stack name
 
-+ Attributes
-    + data (array)
-        + (object)
-            + id (string)
-            + name (string)
-            + image (string)
-            + node (string)
-            + desiredState (string)
-            + currentState (string)
-            + error (string, optional)
-            + ports (string, optional)
-
 + Response 200 (application/json)
 
-        {
-            "data": [
-                {
-                    "id": "pqgf55qat18q6gl1m8nbl4bxh",
-                    "name": "docks-db_db.1",
-                    "image": "postgres:latest@sha256:d99f15cb8d0f47f0a6...4d1e25acb66ccf7bd7bd8479",
-                    "node": "leonidas",
-                    "desiredState": "Shutdown",
-                    "currentState": "Failed about an hour ago",
-                    "error": "starting container failed: Address already in use"
-                }
-            ]
-        }
+    + Attributes
+        + data (array[object], fixed)
+            + (object)
+                + ID (string)
+                + Version (object)
+                + CreatedAt (string)
+                + UpdatedAt (string)
+                + Name (string) - Name of the task.
+                + Labels (object) - User defined key/value metadata.
+                + Spec (object) - User modifiable task configuration.
+                   
 
     
 + Response 404
@@ -276,4 +262,3 @@ All requests to the `/docker` endpoint will be forwarded to the Docker API
 + Response 200 (application/json)
 + Response 406
 + Response 500
-
