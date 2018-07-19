@@ -247,6 +247,27 @@ here is only for demonstration purposes.
 
     + Body
 
+### Get Stackfile [GET /stacks/{stackName}/stackfile]
+
+Returns the Base64 encoded docker-compose file generated from the
+current Docker Swarm state
+
++ Parameters
+    + stackName (string) - The unique stack name
+
++ Response 200 (application/json)
+
+    + Attributes
+        + data (object, fixed)
+            + stackFile: IyBEZXBsb3kgdG...V09SRD1leGFtcGxl (string, required)
+            
+                Base64 encoded docker-compose file
+
++ Response 404
+    Stack does not exist
+
+    + Body
+
 # Group Docker
 ## Proxy [/docker]
 All requests to the `/docker` endpoint will be forwarded to the Docker API
