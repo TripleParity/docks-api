@@ -35,7 +35,7 @@ router.post('/', async function(req, res, next) {
     return;
   }
 
-  console.log('Preparing to deplay stack with name ' + req.body.stackName);
+  console.log('Preparing to deploy stack with name ' + req.body.stackName);
 
   // Check if stack exists. If so, return error
   if (await doesStackExistInSwarm(req.body.stackName)) {
@@ -316,7 +316,9 @@ async function dockerCLIDeployStack(stackName, stackFileBase64) {
   } catch (error) {
     if (error) {
       console.log('Error deploying docker stack: ' + error);
-      throw error.stderr;
+      let errorResponse = error.stdout;
+      errorResponse += error.stderr;
+      throw errorResponse;
     }
   } finally {
     // Remove temporary file after the CLI call ends
