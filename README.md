@@ -69,17 +69,11 @@ If you use the included Docker file for development, there is no need to install
 
 The included Development docker-compose file will run the Docks API on port 8080:
 
-`$ docker-compose up`
-
-If you prefer to run it manually, you can start the API with:
-1. `docker build -f Dockerfile-dev -t docks-development .`
-2. `docker run -it -v "$(pwd)"/:/app -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock docks-development `
-
-When the development image runs (step 2), npm will check for any updates. The Express server will automatically
-reload as you edit local files.
+`$ docker-compose  -f docker-compose.development.yml up --build`
 
 Note: currently, the development container will set the ownership of the `node_modules` folder and all installed
-packages to root if they don't exist (pure Docker workflow).
+packages to root if they don't exist (pure Docker workflow). This will break things if you decide to run the project 
+locally instead of purely with Docker since the container could have a different Node version.
 
 ## Testing
 ### Unit Tests
