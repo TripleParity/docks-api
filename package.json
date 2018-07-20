@@ -1,14 +1,16 @@
 {
   "name": "docks",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
+    "start-dev-db": "DEBUG=docks:* PORT=8080 JWT_SECRET=dev DOCKS_DB_ADDRESS=127.0.0.1 POSTGRES_PASSWORD=example nodemon ./bin/www",
     "production": "node ./bin/www",
     "test": "jasmine",
     "jest": "jest"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "bcrypt": "^2.0.1",
     "body-parser": "~1.18.2",
     "cookie-parser": "~1.4.3",

@@ -4,40 +4,40 @@ const router = new express.Router();
 
 /* Proxy for docker socket */
 router.all('*', function(req, res, next) {
-    const requestOptions = {
-        baseUrl: 'http://unix:/var/run/docker.sock:',
-        url: req.url,
-        method: req.method,
-        body: JSON.stringify(req.body),
-        headers: {
-            // Docker API expects a host header to be present.
-            'Host': '',
+  const requestOptions = {
+    baseUrl: 'http://unix:/var/run/docker.sock:',
+    url: req.url,
+    method: req.method,
+    body: JSON.stringify(req.body),
+    headers: {
+      // Docker API expects a host header to be present.
+      'Host': '',
 
-            // Content type needs to be passed along too
-            'Content-Type': req.get('Content-Type'),
-        },
-    };
+      // Content type needs to be passed along too
+      'Content-Type': req.get('Content-Type'),
+    },
+  };
 
-    request(requestOptions, (error, response, body) => {
-        if (error) {
-            res.status(500);
-            res.write('Error while sending request to docker API: ' + error);
-            console.error(error);
-            return;
-        }
+  request(requestOptions, (error, response, body) => {
+    if (error) {
+      res.status(500);
+      res.write('Error while sending request to docker API: ' + error);
+      console.error(error);
+      return;
+    }
 
-        res.status(response.statusCode);
+    res.status(response.statusCode);
 
-        // Append the headers that the docker API returned
-        for (const key in response.headers) {
-            if (response.headers.hasOwnProperty(key)) {
-                res.append(key, response.headers[key]);
-            }
-        }
+    // Append the headers that the docker API returned
+    for (const key in response.headers) {
+      if (response.headers.hasOwnProperty(key)) {
+        res.append(key, response.headers[key]);
+      }
+    }
 
-        res.write(body);
-        res.end();
-    });
+    res.write(body);
+    res.end();
+  });
 });
 
 module.exports = router;

@@ -4,13 +4,14 @@
     "google"
   ],
   "rules": {
-    // Additional, per-project rules...
-    "no-console": "off"
+    "no-console": "off",
+    "indent": ["error", 2]
   },
   "parserOptions": {
-    "ecmaVersion": 6
+    "ecmaVersion": 8
   },
   "env": {
-    "node": true
+    "node": true,
+    "es6": true
   }
 }

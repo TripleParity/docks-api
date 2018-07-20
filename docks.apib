@@ -16,8 +16,6 @@ Docks API
 ```
 
 ### Request new JWT [POST]
-
-
 Request a new JWT for use in Authenticated requests
 
 + Request (application/json)
@@ -45,9 +43,236 @@ Request a new JWT for use in Authenticated requests
                 "message": "Invalid username or password"
             }
 
+# Group User Management
+## User Collection [/users]
+
+### Get All Users [GET]
+Returns all users in the database.
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "data": [
+                    {
+                        "username": "bob"
+                    },
+                    {
+                        "username": "john"
+                    }
+                ]
+            }
+
+### Create User [POST]
+Create a new user
+
++ Attributes
+    + username (string)
+    + password (string)
+
++ Request (application/json)
+
+        {
+            "username": "fred",
+            "password": "pass",
+        }
+
++ Response 200
++ Response 409
+    Username already exists
+
+    + Body
+
+## User [/users/{username}]
+
++ Parameters
+    + username (string) - The username used to login
+
+### Update User [PUT]
+
++ Attributes
+    + password (string, optional)
+
++ Request (application/json)
+
+        {
+            "password": "BetterPass333"
+        }
+
++ Response 200
++ Response 404
+    User does not exist
+
+    + Body
+
+### Delete User [DELETE]
+Delete a user from the system
+
++ Response 200
++ Response 404
+    User does not exist
+
+    + Body
+
+# Group Docker Stacks
+## Stack Collection [/stacks]
+### List Stacks [GET]
+Get all stacks running in the Swarm
+
++ Response 200 (application/json)
+
+    + Attributes
+        + data (array)
+            + (object)
+                + stackName: `docks-api` (string, required) - The unique name for the stack
+                + servicesCount: 3 (number, required) - The number of services running in the stack
+
+    + Body
+
+            {
+                "data": [
+                    {
+                        "stackName": "docks-api",
+                        "servicesCount": 3
+                    },
+                    {
+                        "stackName": "docks-ui",
+                        "servicesCount": 1
+                    }
+                ]
+            }
+
+### Deploy New Stack [POST]
+Deploy a new stack to the Swarm. The stack name should not exist
+
+
++ Request (application/json)
+
+    + Attributes
+        + stackName: `docks-api` (string, required) - Unique stack name
+        + stackFile: IyBEZXBsb3kgdG...V09SRD1leGFtcGxl (string, required)
+        Base64 encoded docker-compose file
+
++ Response 200
+    Stack created successfully
+
+    + Body
+
++ Response 409
+    Stack name already exists
+
+    + Body
+
+## Stack [/stacks/{stackName}]
++ Parameters
+    + stackName (string) - The unique stack name
+
+### Update Existing Stack [PUT]
+
++ Request (application/json)
+    + Attributes
+        + stackFile: IyBEZXBsb3kgdG...V09SRD1leGFtcGxl (string, required)
+        Base64 encoded docker-compose file
+
++ Response 200
+    Stack updated successfully
+
+    + Body
+
++ Response 404
+    Stack name does not exist
+
+    + Body
+
+### Remove Stack [DELETE]
+
++ Response 200
++ Response 404
+    Stack does not exist
+
+    + Body
+
+### Get Services in Stack [GET /stacks/{stackName}/services]
+
+Returns an array of Services associated with the given stack from Docker API.
+
+The Schema for the service is defined in the Docker API, the Schema displayed
+here is only for demonstration purposes.
+
++ Parameters
+    + stackName (string) - The unique stack name
+
++ Response 200 (application/json)
+
+    + Attributes
+        + data (array[object])
+            + (object)
+                + ID (string)
+                + Version (object)
+                + CreatedAt (string)
+                + UpdatedAt (string)
+                + Spec (object)
+                + Endpoint (object)
+                
+
+
+### Get Tasks in Stack [GET /stacks/{stackName}/tasks]
+
+Returns an array of Tasks associated with the given stack.
+
+The Schema for the tasks is defined in the Docker API, the Schema displayed
+here is only for demonstration purposes.
+
++ Parameters
+    + stackName (string) - The unique stack name
+
++ Response 200 (application/json)
+
+    + Attributes
+        + data (array[object], fixed)
+            + (object)
+                + ID (string)
+                + Version (object)
+                + CreatedAt (string)
+                + UpdatedAt (string)
+                + Name (string) - Name of the task.
+                + Labels (object) - User defined key/value metadata.
+                + Spec (object) - User modifiable task configuration.
+                   
+
+    
++ Response 404
+    Stack does not exist
+
+    + Body
+
+### Get Stackfile [GET /stacks/{stackName}/stackfile]
+
+Returns the Base64 encoded docker-compose file generated from the
+current Docker Swarm state
+
++ Parameters
+    + stackName (string) - The unique stack name
+
++ Response 200 (application/json)
+
+    + Attributes
+        + data (object, fixed)
+            + stackFile: IyBEZXBsb3kgdG...V09SRD1leGFtcGxl (string, required)
+            
+                Base64 encoded docker-compose file
+
++ Response 404
+    Stack does not exist
+
+    + Body
+
 # Group Docker
-## Containers [/docker]
-### List Containers [GET /docker/containers/json]
+## Proxy [/docker]
+All requests to the `/docker` endpoint will be forwarded to the Docker API
+
+### List Services [GET /docker/services]
 
 + Request
 
@@ -56,11 +281,5 @@ Request a new JWT for use in Authenticated requests
             Authorization: Bearer <jwt>
 
 + Response 200 (application/json)
-    Valid credentials
-
-    + Body
-
-            See Docker API
-
-+ Response 403 (application/json)
-
++ Response 406
++ Response 500

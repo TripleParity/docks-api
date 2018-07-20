@@ -1,14 +1,27 @@
+# Dockerfile for running nodejs in a container with hot reload
+
 FROM node:9.8.0-alpine
+
+RUN apk add --update python make g++ postgresql-client
+
+EXPOSE 8080
 
 MAINTAINER TripleParity
 
 RUN apk update && \
     apk upgrade
 
-RUN apk add --update python make g++ docker
-RUN apk add sqlite
+# Install docker
+RUN apk add docker && \
+    apk add py-pip && \
+    apk add --update python make g++ docker && \
+    apk add sqlite
 
-#RUN rc-update add docker boot
+# Install docker-compose
+RUN pip install docker-compose
+
+# Set environmental flags for docker compose
+ENV DOCKER_HOST=unix:///var/run/docker.sock
 
 EXPOSE 8080
 

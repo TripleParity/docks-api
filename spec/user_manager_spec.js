@@ -11,6 +11,7 @@ describe('The UserManager', function() {
         db = new Sequelize('database', null, null, {
             dialect: 'sqlite',
             storage: ':memory:',
+            logging: false,
         });
 
         userManager = new UserManager(db);
@@ -45,6 +46,15 @@ describe('The UserManager', function() {
         expect(user.id).toBe(2);
         expect(user.username).toBe('Fred');
 
+    });
+
+    it('does not create duplicate users', async function() {
+        let newUser = await userManager.createUser('Fred', 'pass');
+        expect(newUser.username).toBe('Fred')
+
+        let sameUser = await userManager.createUser('Fred', 'car');
+        expect(sameUser.username).toBe('Fred');
+        expect(sameUser.id).toBe(newUser.id);
     });
 
     it('works with an existing database', async function() {
@@ -84,10 +94,10 @@ describe('The UserManager', function() {
         expect(user3).not.toBe(null);
 
         let user4 = await userManager.createUser('James', 'rat2');
-        expect(user4).toBe(null);
+        expect(user4.id).toBe(user3.id);
 
         let user5 = await userManager.createUser('admin', 'lol');
-        expect(user5).toBe(null);
+        expect(user5).not.toBeNull();
     });
 
     it('can change User passwords', async function() {
@@ -105,6 +115,17 @@ describe('The UserManager', function() {
 
         expect(await userManager.removeUser('Bob')).toBe(true);
         expect(await userManager.getUserByUsername('Bob')).toBe(null);
+    });
+
+    it('can return all users in the database', async function() {
+        await userManager.createUser('Bob', 'yeah');
+        let users = await userManager.getAllUsers();
+
+        // TODO(egeldenhuys): Don't assume order of returned values
+        expect(users[0].username).toBe('admin');
+        expect(users[0].id).toBe(1);
+        expect(users[1].username).toBe('Bob');
+        expect(users[1].id).toBe(2);
     });
 
 });
