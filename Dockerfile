@@ -1,5 +1,3 @@
-# TODO(egeldenhuys): Use multistage build to get rid of g++ and perhaps python
-
 # --------------------------------------------
 # Use this stage to build all the node modules
 # --------------------------------------------
