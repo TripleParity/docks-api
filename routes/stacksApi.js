@@ -248,7 +248,7 @@ async function retrieveStackList() {
   // Skip first line (header)
   for (let i = 1; i < outputLines.length; i++) {
     const nameCountSplit = outputLines[i].match(/\S+/g) || [];
-    if (nameCountSplit.length !== 2) {
+    if (nameCountSplit.length !== 3) {
       continue;
     }
 
