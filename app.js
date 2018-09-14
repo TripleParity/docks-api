@@ -4,6 +4,7 @@ let logger = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
 const cors = require('cors');
+const DockerEventWatcher = require('./lib/docker_event_watcher');
 
 let index = require('./routes/index');
 let users = require('./routes/users');
@@ -79,4 +80,8 @@ async function initDatabase() {
   await userManager.initDatabase();
 }
 
+console.log("LOLCAT");
+const dockerEventWatcher = new DockerEventWatcher();
+dockerEventWatcher.start();
+console.log("LOLCAT END");
 module.exports = app;
