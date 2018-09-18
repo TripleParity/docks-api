@@ -9,6 +9,7 @@ const DockerEventWatcher = require('./lib/docker_event_watcher');
 let index = require('./routes/index');
 let users = require('./routes/users');
 let dockerProxyRouter = require('./routes/docker');
+let webhooks = require('./routes/webhook');
 let auth = require('./routes/auth');
 let stacksApi = require('./routes/stacksApi');
 
@@ -51,6 +52,7 @@ app.use('/', index);
 app.use('/users', users);
 app.use(['/docker', '/docker/*'], dockerProxyRouter);
 app.use(['/stacks', '/stacks/*'], stacksApi);
+app.use(['/webhooks', '/webhooks/*'], webhooks);
 app.use('/api/auth', auth);
 
 // catch 404 and forward to error handler
@@ -80,8 +82,6 @@ async function initDatabase() {
   await userManager.initDatabase();
 }
 
-console.log("LOLCAT");
-const dockerEventWatcher = new DockerEventWatcher();
-dockerEventWatcher.start();
-console.log("LOLCAT END");
+
+
 module.exports = app;
