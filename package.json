@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
+    "dev-migrate-db": "DEBUG=docks:* PORT=8080 DOCKS_DB_ADDRESS=127.0.0.1 POSTGRES_PASSWORD=example ./node_modules/.bin/sequelize db:migrate",
     "start-dev-db": "DEBUG=docks:* PORT=8080 JWT_SECRET=dev DOCKS_DB_ADDRESS=127.0.0.1 POSTGRES_PASSWORD=example nodemon ./bin/www",
     "production": "node ./bin/www",
     "test": "jasmine",
