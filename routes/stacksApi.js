@@ -25,6 +25,8 @@ router.get('/', async (req, res, next) => {
 
 // Deploy a new stack to the Swarm. The stack name should not exist
 router.post('/', async function(req, res, next) {
+  req.setTimeout(DOCKER_CLI_TIMEOUT);
+
   if (!req.body.hasOwnProperty('stackName') || req.body['stackName'] === '') {
     res.status(400).send('Required parameter stackName missing');
     return;
