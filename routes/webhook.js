@@ -9,13 +9,14 @@ router.post('/create', async (req, res, next) => {
         return;
       }
     
-    if (!req.body.hasOwnProperty('type') || req.body['type'] === '') {
-        res.status(400).send('Required parameter type missing');
+    if (!req.body.hasOwnProperty('types') || req.body['types'] === '') {
+        res.status(400).send('Required parameter types missing');
         return;
     }
 
-    let webhook = new dw(req.body['url'], req.body['type'], dockerEventWatcher);
-    webhook.init();
+
+    let wh = new dw(req.body['url'], req.body['types'], dockerEventWatcher);
+    wh.init();
 
     res.status(200).send('Webhook created');
 });
