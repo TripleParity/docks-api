@@ -13,7 +13,7 @@ const execFileAsync = util.promisify(execFile);
 /* Api endpoint to build and run a docker-compose file */
 
 // Timeout in milliseconds for CLI calls to docker
-const DOCKER_CLI_TIMEOUT = 5000;
+const DOCKER_CLI_TIMEOUT = 15000;
 
 // Get all stacks running in the Swarm
 router.get('/', async (req, res, next) => {
