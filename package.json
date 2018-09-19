@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
+    "dev-migrate-db": "DEBUG=docks:* PORT=8080 DOCKS_DB_ADDRESS=127.0.0.1 POSTGRES_PASSWORD=example ./node_modules/.bin/sequelize db:migrate",
     "start-dev-db": "DEBUG=docks:* PORT=8080 JWT_SECRET=dev DOCKS_DB_ADDRESS=127.0.0.1 POSTGRES_PASSWORD=example nodemon ./bin/www",
     "production": "node ./bin/www",
     "test": "jasmine",
@@ -24,9 +25,9 @@
     "pg": "^7.4.1",
     "pg-hstore": "^2.3.2",
     "request": "^2.85.0",
-    "sequelize": "^4.37.6",
-    "serve-favicon": "~2.4.5",
-    "speakeasy": "^2.0.0"
+    "speakeasy": "^2.0.0",
+    "sequelize": "^4.38.1",
+    "sequelize-cli": "^4.1.1"
   },
   "devDependencies": {
     "eslint": "^4.19.1",
