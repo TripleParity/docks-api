@@ -16,4 +16,8 @@ else
 fi
 
 npm install
+
+# Run migrations
+./node_modules/.bin/sequelize db:migrate
+
 DEBUG=docks:* PORT=8080 npm start

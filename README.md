@@ -57,7 +57,11 @@ docker swarm init
 # Deploy postgres database
 docker stack deploy -c docker-compose/db.yml docks-db
 
+# Install required packages and tools
 npm install
+
+# Perform migrations on development database
+npm run dev-migrate-db
 
 # Run Docks API from source and export env variables
 npm run start-dev-db
