@@ -15,12 +15,13 @@ describe('The UserManager', function() {
         });
 
         userManager = new UserManager(db);
-        await userManager.initDatabase();
 
         // Since we did not make our Postgre Migrations (SQLite), we have
         // to sync the required models manually
         await db.sync();
 
+        // Default username + passwords
+        await userManager.initDatabase();
     });
 
     it('has a connection to the test database', async function() {
