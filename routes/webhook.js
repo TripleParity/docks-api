@@ -44,28 +44,9 @@ router.delete('/', async (req, res, next) => {
         }
         j++
     });
+    
     if(!se)
-        res.status(400).send('Webhook not found');
-        
-    if (!req.body.hasOwnProperty('name') || req.body['name'] === '') {
-        res.status(500).send({message: "Required parameter missing"});
-        return;
-    }
-
-    let wh = new Webhook(req.body['name'], req.body['url'], req.body['types'], dockerEventWatcher);
-    var j = 0;
-    var se = false;
-
-    Webhooks.forEach(webhook => {
-        if(webhook.name === req.body['name']){
-            Webhooks.splice(j, 1);
-            res.status(200).send();
-            se = true;
-        }
-        j++
-    });
-    if(!se)
-        res.status(404).send({message: "Webhook not found!"});
+        res.status(400).send({message: "Webhook not found!"});
 });
 
 module.exports = router;
