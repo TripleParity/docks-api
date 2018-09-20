@@ -31,6 +31,22 @@ router.post('/', async (req, res, next) => {
 
 router.delete('/', async (req, res, next) => {
 
+    let name = req.params.name;
+    
+    var j = 0;
+    var se = false;
+
+    Webhooks.forEach(webhook => {
+        if(webhook.name === name){
+            Webhooks.splice(j, 1);
+            res.status(200).send({message: "Webhook deleted!"});
+            se = true;
+        }
+        j++
+    });
+    if(!se)
+        res.status(400).send('Webhook not found');
+        
     if (!req.body.hasOwnProperty('name') || req.body['name'] === '') {
         res.status(500).send({message: "Required parameter missing"});
         return;
@@ -43,7 +59,7 @@ router.delete('/', async (req, res, next) => {
     Webhooks.forEach(webhook => {
         if(webhook.name === req.body['name']){
             Webhooks.splice(j, 1);
-            res.status(200).send({message: "Webhook deleted!"});
+            res.status(200).send();
             se = true;
         }
         j++
