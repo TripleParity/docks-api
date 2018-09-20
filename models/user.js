@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    twofactorconfirmed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     twofactortoken: {
       type: DataTypes.STRING,
       defualtValue: null,
