@@ -7,17 +7,17 @@ let Webhooks = [];
 
 router.post('/', async (req, res, next) => {
     if (!req.body.hasOwnProperty('url') || req.body['url'] === '') {
-        res.status(400).send('Required parameter url missing');
+        res.status(500).send({message: "Required parameter missing"});
         return;
       }
     
     if (!req.body.hasOwnProperty('types') || req.body['types'] === '') {
-        res.status(400).send('Required parameter types missing');
+        res.status(500).send({message: "Required parameter missing"});
         return;
     }
 
     if (!req.body.hasOwnProperty('name') || req.body['name'] === '') {
-        res.status(400).send('Required parameter name missing');
+        res.status(500).send({message: "Required parameter missing"});
         return;
     }
 
@@ -26,13 +26,13 @@ router.post('/', async (req, res, next) => {
 
     Webhooks.push(wh);
 
-    res.status(200).send('Webhook created');
+    res.status(200).send({message: "Webhook created!"});
 });
 
 router.delete('/', async (req, res, next) => {
 
     if (!req.body.hasOwnProperty('name') || req.body['name'] === '') {
-        res.status(400).send('Required parameter name missing');
+        res.status(500).send({message: "Required parameter missing"});
         return;
     }
 
@@ -43,13 +43,13 @@ router.delete('/', async (req, res, next) => {
     Webhooks.forEach(webhook => {
         if(webhook.name === req.body['name']){
             Webhooks.splice(j, 1);
-            res.status(200).send('Webhook deleted');
+            res.status(200).send({message: "Webhook deleted!"});
             se = true;
         }
         j++
     });
     if(!se)
-        res.status(400).send('Webhook not found');
+        res.status(404).send({message: "Webhook not found!"});
 });
 
 module.exports = router;
