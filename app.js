@@ -44,7 +44,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
 // All routes must be authorized except the /api/auth/token route
-app.use(jwtMiddleware(JWT_SECRET, {path: ['/api/auth/token']}));
+app.use(jwtMiddleware(JWT_SECRET, {path: ['/api/auth/token', '/api/auth/qr']}));
 
 app.use('/', index);
 app.use('/users', users);
