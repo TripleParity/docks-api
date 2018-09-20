@@ -64,7 +64,6 @@ router.post('/', function(req, res, next) {
  * UPDATE user 2FA status
  */
 router.put('/:username/2fa', function(req, res, next) {
-  console.log('wow: ' + req.body.status);
   userManager
     .updateTwoFactorStatus(req.params.username, req.body.status)
     .then((result) => {
