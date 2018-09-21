@@ -5,7 +5,7 @@ version: '3.2'
 services:
 
   api:
-    image: tripleparity/docks-api:latest
+    image: tripleparity/docks-api:branch-develop
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -13,7 +13,7 @@ services:
       - DOCKS_DB_ADDRESS=db
       - POSTGRES_PASSWORD=example
     ports:
-      - 8080:8080
+      - '8080:8080'
     depends_on:
       - db
     deploy:
@@ -22,5 +22,12 @@ services:
 
   db:
     image: postgres
+    volumes:
+      - type: volume
+        source: docks_data
+        target: /var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=example
+
+volumes:
+  docks_data:

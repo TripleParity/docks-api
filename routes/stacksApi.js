@@ -13,7 +13,7 @@ const execFileAsync = util.promisify(execFile);
 /* Api endpoint to build and run a docker-compose file */
 
 // Timeout in milliseconds for CLI calls to docker
-const DOCKER_CLI_TIMEOUT = 5000;
+const DOCKER_CLI_TIMEOUT = 15000;
 
 // Get all stacks running in the Swarm
 router.get('/', async (req, res, next) => {
@@ -25,6 +25,8 @@ router.get('/', async (req, res, next) => {
 
 // Deploy a new stack to the Swarm. The stack name should not exist
 router.post('/', async function(req, res, next) {
+  req.setTimeout(DOCKER_CLI_TIMEOUT);
+
   if (!req.body.hasOwnProperty('stackName') || req.body['stackName'] === '') {
     res.status(400).send('Required parameter stackName missing');
     return;
@@ -248,7 +250,7 @@ async function retrieveStackList() {
   // Skip first line (header)
   for (let i = 1; i < outputLines.length; i++) {
     const nameCountSplit = outputLines[i].match(/\S+/g) || [];
-    if (nameCountSplit.length !== 2) {
+    if (nameCountSplit.length !== 3) {
       continue;
     }
 

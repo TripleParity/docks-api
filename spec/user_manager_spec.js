@@ -15,8 +15,13 @@ describe('The UserManager', function() {
         });
 
         userManager = new UserManager(db);
-        await userManager.initDatabase();
 
+        // Since we did not make our Postgre Migrations (SQLite), we have
+        // to sync the required models manually
+        await db.sync();
+
+        // Default username + passwords
+        await userManager.initDatabase();
     });
 
     it('has a connection to the test database', async function() {
@@ -126,6 +131,13 @@ describe('The UserManager', function() {
         expect(users[0].id).toBe(1);
         expect(users[1].username).toBe('Bob');
         expect(users[1].id).toBe(2);
+    });
+
+    it('the two factor status defaults to false', async function() {
+        await userManager.createUser('Bob', 'yeah');
+        let users = await userManager.getAllUsers();
+
+        expect(users[0].twofactorenabled).toBe(false);
     });
 
 });

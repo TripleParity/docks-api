@@ -4,10 +4,12 @@ let logger = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
 const cors = require('cors');
+const DockerEventWatcher = require('./lib/docker_event_watcher');
 
 let index = require('./routes/index');
 let users = require('./routes/users');
 let dockerProxyRouter = require('./routes/docker');
+let webhooks = require('./routes/webhook');
 let auth = require('./routes/auth');
 let stacksApi = require('./routes/stacksApi');
 
@@ -29,7 +31,8 @@ app.set('view engine', 'jade');
 // Extract secret key for JWT signing from environmental variable JWT_SECRET
 const JWT_SECRET = process.env['JWT_SECRET'];
 if (JWT_SECRET === undefined || JWT_SECRET === '') {
-  console.warn('Warning: JWT secret not set! Change JWT_SECRET to the required JWT secret value.');
+  console.warn('Warning: JWT secret not set!' +
+  'Change JWT_SECRET to the required JWT secret value.');
 }
 
 
@@ -44,12 +47,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
 // All routes must be authorized except the /api/auth/token route
-app.use(jwtMiddleware(JWT_SECRET, {path: ['/api/auth/token']}));
+app.use(jwtMiddleware(JWT_SECRET, {path: ['/api/auth/token', '/api/auth/qr']}));
 
 app.use('/', index);
 app.use('/users', users);
 app.use(['/docker', '/docker/*'], dockerProxyRouter);
 app.use(['/stacks', '/stacks/*'], stacksApi);
+app.use(['/webhooks', '/webhooks/*'], webhooks);
 app.use('/api/auth', auth);
 
 // catch 404 and forward to error handler
@@ -78,5 +82,7 @@ async function initDatabase() {
   console.log('Initializing database...');
   await userManager.initDatabase();
 }
+
+
 
 module.exports = app;

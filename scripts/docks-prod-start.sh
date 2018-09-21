@@ -17,4 +17,7 @@ else
     exit 1;
 fi
 
+# Run migrations
+./node_modules/.bin/sequelize db:migrate
+
 DEBUG=docks:* NODE_ENV=development PORT=8080 npm run production
