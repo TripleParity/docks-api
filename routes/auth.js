@@ -9,16 +9,16 @@ const QRCode = require('qrcode');
 const userManager = new UserManager(db);
 
 router.get('/test', function(req, res, next) {
-    db
-        .authenticate()
-        .then(() => {
-            console.log('Connection has been established successfully.');
-            res.send('GOOD');
-        })
-        .catch((err) => {
-            console.error('Unable to connect to the database:', err);
-            res.send(err);
-        });
+  db
+    .authenticate()
+    .then(() => {
+      console.log('Connection has been established successfully.');
+      res.send('GOOD');
+    })
+    .catch((err) => {
+      console.error('Unable to connect to the database:', err);
+      res.send(err);
+    });
 });
 
 /*
@@ -37,11 +37,14 @@ router.get('/test', function(req, res, next) {
         "jwt": "<jwt>"
     }
 
-    If the user has two-factor enabled and the wrong token is sent, a 401/Wrong Token error will be sent.
+    If the user has two-factor enabled and the wrong token is sent,
+    a 401/Wrong Token error will be sent.
 
-    If the user has two-factor enabled and NO token is sent, a 400/Token Rquired error will be sent.
+    If the user has two-factor enabled and NO token is sent, a 400/Token Rquired
+    error will be sent.
 
-    If the user has two-factor enabled but has not verified it yet, a 402/Initial Token error will be sent.
+    If the user has two-factor enabled but has not verified it yet,
+    a 402/Initial Token error will be sent.
     The QR code for the token can then be requested from the /qr endpoint.
 
     On failure, returns code 401
@@ -49,51 +52,54 @@ router.get('/test', function(req, res, next) {
     NOTE: Requires the header Content-Type: application/json
  */
 router.post('/token', async function(req, res, next) {
-    userManager.verifyCredentials(req.body.username, req.body.password).then(async (valid) => {
-            if (valid) {
-                let user = await userManager.getUserByUsername(req.body.username);
+  userManager.verifyCredentials(req.body.username, req.body.password)
+    .then(async (valid) => {
+      if (valid) {
+        let user = await userManager.getUserByUsername(req.body.username);
 
-                // First, test if the user has enabled Two-Factor auth
-                if (user.twofactorenabled) {
-                    // Generate the token if it does not exist
-                    if (user.twofactortoken == null) {
-                        user.twofactortoken = speakeasy.generateSecret().base32;
-                        user.twofactorconfirmed = false;
-                        await user.save();
-                    }
-                    
-                    // Try and verify the user-submitted token
-                    let verified = speakeasy.totp.verify({
-                        secret: user.twofactortoken,
-                        encoding: 'base32',
-                        token: req.body.token,
-                    })
-                    
-                    // If the submitted token is empty, show the OTP barcode.
-                    if (req.body.token === '' || req.body.token === null) {
-                        res.status(402).send({
-                            qr: user.twofactortoken,
-                        });
-                        return;
-                    }
+        // First, test if the user has enabled Two-Factor auth
+        if (user.twofactorenabled) {
+        // Generate the token if it does not exist
+          if (user.twofactortoken == null) {
+            user.twofactortoken = speakeasy.generateSecret().base32;
+            user.twofactorconfirmed = false;
+            await user.save();
+          }
 
-                }
+          // Try and verify the user-submitted token
+          let verified = speakeasy.totp.verify({
+            secret: user.twofactortoken,
+            encoding: 'base32',
+            token: req.body.token,
+          });
 
-                const payload = {username: req.body.username};
+          // If the submitted token is empty and the user has not confirmed
+          // the OTP secret key, show the OTP barcode.
+          if (req.body.token === '' || req.body.token === null) {
+            res.status(402).send({
+              qr: user.twofactortoken,
+            });
+            return;
+          }
 
-                let token = jwt.sign(payload, req.JWT_SECRET);
+          console.log('Verified: ' + verified);
+        }
 
-                res.send({
-                    jwt: token,
-                });
-            } else {
-                res.status(401).send({error: 'Incorrect username and/or password'});
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-            res.status(500).send();
+        const payload = {username: req.body.username};
+
+        let token = jwt.sign(payload, req.JWT_SECRET);
+
+        res.send({
+          jwt: token,
         });
+      } else {
+        res.status(401).send({error: 'Incorrect username and/or password'});
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send();
+    });
 });
 
 /*
@@ -104,28 +110,26 @@ router.post('/token', async function(req, res, next) {
     }
 */
 router.post('/qr', async function(req, res, next) {
-    console.log('wow');
-    console.log('Username: ' + req.body.username);
-    console.log('Password: ' + req.body.password);
-    userManager.verifyCredentials(req.body.username, req.body.password).then(async (valid) => {
-        if (valid) {
-            let user = await userManager.getUserByUsername(req.body.username);
-            let opathUrl = speakeasy.otpauthURL({
-                secret: user.twofactortoken,
-                label: "Docks OTP",
-                encoding: "base32",
-            });
+  userManager.verifyCredentials(req.body.username, req.body.password)
+    .then(async (valid) => {
+      if (valid) {
+        let user = await userManager.getUserByUsername(req.body.username);
+        let opathUrl = speakeasy.otpauthURL({
+          secret: user.twofactortoken,
+          label: 'Docks OTP',
+          encoding: 'base32',
+        });
 
-            QRCode.toDataURL(opathUrl, (error, data_url) => {
-                res.status(200).send({qr: data_url});
-            });
-        } else {
-            res.status(401).send({error: 'Incorrect username and/or password'});
-        }
+        QRCode.toDataURL(opathUrl, (error, dataURL) => {
+          res.status(200).send({qr: dataURL});
+        });
+      } else {
+        res.status(401).send({error: 'Incorrect username and/or password'});
+      }
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).send();
+      console.error(err);
+      res.status(500).send();
     });
 });
 

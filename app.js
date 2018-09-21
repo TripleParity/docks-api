@@ -29,7 +29,8 @@ app.set('view engine', 'jade');
 // Extract secret key for JWT signing from environmental variable JWT_SECRET
 const JWT_SECRET = process.env['JWT_SECRET'];
 if (JWT_SECRET === undefined || JWT_SECRET === '') {
-  console.warn('Warning: JWT secret not set! Change JWT_SECRET to the required JWT secret value.');
+  console.warn('Warning: JWT secret not set!' +
+  'Change JWT_SECRET to the required JWT secret value.');
 }
 
 

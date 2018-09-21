@@ -20,5 +20,5 @@ module.exports = {
       queryInterface.removeColumn('Users', 'twofactorenabled'),
       queryInterface.removeColumn('Users', 'twofactortoken'),
     ]);
-  }
+  },
 };
