@@ -5,7 +5,7 @@ version: '3.2'
 services:
 
   api:
-    image: tripleparity/docks-api:latest
+    image: tripleparity/docks-api:branch-develop
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
