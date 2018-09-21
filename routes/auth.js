@@ -75,14 +75,30 @@ router.post('/token', async function(req, res, next) {
 
           // If the submitted token is empty and the user has not confirmed
           // the OTP secret key, show the OTP barcode.
-          if (req.body.token === '' || req.body.token === null) {
+          if (!user.twofactorconfirmed && (req.body.token === ''
+                                        || req.body.token === null)) {
             res.status(402).send({
               qr: user.twofactortoken,
             });
             return;
           }
 
-          console.log('Verified: ' + verified);
+          // If the token is not valid but it has been confirmed, prompt the
+          // user for the token.
+          if (req.body.token === '' || req.body.token === null) {
+            res.status(400).send({
+              error: 'Two-Factor token required',
+            });
+          }
+
+          // If the user has entered the correct 2FA token, let him through
+          if (verified) {
+            user.twofactorconfirmed = true;
+            await user.save();
+          } else {
+            res.status(401).send({error: 'Incorrect two-factor token'});
+            return;
+          }
         }
 
         const payload = {username: req.body.username};
@@ -116,7 +132,7 @@ router.post('/qr', async function(req, res, next) {
         let user = await userManager.getUserByUsername(req.body.username);
         let opathUrl = speakeasy.otpauthURL({
           secret: user.twofactortoken,
-          label: 'Docks OTP',
+          label: 'Docks OTP for ' + user.username,
           encoding: 'base32',
         });
 
