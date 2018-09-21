@@ -133,4 +133,11 @@ describe('The UserManager', function() {
         expect(users[1].id).toBe(2);
     });
 
+    it('the two factor status defaults to false', async function() {
+        await userManager.createUser('Bob', 'yeah');
+        let users = await userManager.getAllUsers();
+
+        expect(users[0].twofactorenabled).toBe(false);
+    });
+
 });

@@ -31,7 +31,8 @@ app.set('view engine', 'jade');
 // Extract secret key for JWT signing from environmental variable JWT_SECRET
 const JWT_SECRET = process.env['JWT_SECRET'];
 if (JWT_SECRET === undefined || JWT_SECRET === '') {
-  console.warn('Warning: JWT secret not set! Change JWT_SECRET to the required JWT secret value.');
+  console.warn('Warning: JWT secret not set!' +
+  'Change JWT_SECRET to the required JWT secret value.');
 }
 
 
@@ -46,7 +47,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
 // All routes must be authorized except the /api/auth/token route
-app.use(jwtMiddleware(JWT_SECRET, {path: ['/api/auth/token']}));
+app.use(jwtMiddleware(JWT_SECRET, {path: ['/api/auth/token', '/api/auth/qr']}));
 
 app.use('/', index);
 app.use('/users', users);
