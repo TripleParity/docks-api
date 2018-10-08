@@ -5,6 +5,7 @@ let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
 const cors = require('cors');
 const DockerEventWatcher = require('./lib/docker_event_watcher');
+const tasksRoute = require('./routes/tasks');
 
 let index = require('./routes/index');
 let users = require('./routes/users');
@@ -51,6 +52,8 @@ app.use(jwtMiddleware(JWT_SECRET, {path: ['/api/auth/token', '/api/auth/qr']}));
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/tasks', tasksRoute);
+
 app.use(['/docker', '/docker/*'], dockerProxyRouter);
 app.use(['/stacks', '/stacks/*'], stacksApi);
 app.use(['/webhooks', '/webhooks/*'], webhooks);
