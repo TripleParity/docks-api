@@ -125,28 +125,20 @@ router.get('/:stackName/services', async (req, res) => {
     return;
   }
 
-  // Get a list of IDs for the services in the stack
-  let servicesCliResponse = {};
+  // List of all the services in the stack
+  let serviceIDList = [];
   try {
-    servicesCliResponse = await execFileAsync(
-      'docker', ['stack', 'services', req.params.stackName,
-        '--format', '{{.ID}}'],
-      {timeout: DOCKER_CLI_TIMEOUT});
+    serviceIDList = await getServicesByStack(req.params.stackName);
   } catch (error) {
-    console.error('Error while fetching list of services: ' + error);
+    console.error('Error while fetching services from stack: ' + error);
     res.status(500).send(error);
     return;
   }
 
-  // Split response
-  const serviceIDList = servicesCliResponse.stdout.split(os.EOL);
-
   // For every ID, fetch its details from the Docker api
   let inspectPromises = [];
   for (let id of serviceIDList) {
-    if (id.length > 0) {
-      inspectPromises.push(inspectServiceAxios(id));
-    }
+    inspectPromises.push(inspectServiceAxios(id));
   }
 
   // Wait for all promises to resolve
@@ -162,6 +154,30 @@ router.get('/:stackName/services', async (req, res) => {
 
   // Return response
   res.status(200).send(responseObject);
+});
+
+// Returns the Base64 encoded docker-compose file generated from the
+// current Docker Swarm state
+router.get('/:stackName/stackfile', async (req, res) => {
+  // Ensure the stackname is valid and exists
+  if (!await doesStackExistInSwarm(req.params.stackName)) {
+    res.status(404).send('Stack with name ' + req.params.stackName
+      + ' doesn\'t exist');
+    return;
+  }
+
+  // Get a list of IDs for the services in the stack
+  let serviceIDList = [];
+  try {
+    serviceIDList = await getServicesByStack(req.params.stackName);
+  } catch (error) {
+    console.error('Error while fetching services from stack: ' + error);
+    res.status(500).send(error);
+    return;
+  }
+
+  // Return response (UNIMPLEMENTED)
+  res.status(501).send(serviceIDList);
 });
 
 // List all the tasks in the stack
@@ -381,5 +397,32 @@ async function inspectTaskAxios(taskID) {
   }
 }
 
+/**
+ * Given the ID of a stack, this helper function will fetch the service
+ * IDs of all the services inside the stack
+ * @param {string} stackName - Name of the stack
+ * @return {string[]} - Returns the list of IDs of all services in the stack
+ *
+ * @throws {Object} Any errors returned from the Docker CLI
+ */
+async function getServicesByStack(stackName) {
+  // Get a list of IDs for the services in the stack
+  let servicesCliResponse = {};
+  try {
+    servicesCliResponse = await execFileAsync(
+      'docker', ['stack', 'services', stackName,
+        '--format', '{{.ID}}'],
+      {timeout: DOCKER_CLI_TIMEOUT});
+  } catch (error) {
+    console.error('getServicesByStack ERROR:' + error);
+    throw error;
+  }
+
+  // Split response
+  const splitList = servicesCliResponse.stdout.split(os.EOL);
+
+  // Only return IDs with length longer than 0 to filter out ""
+  return splitList.filter((id) => id.length > 0);
+}
 
 module.exports = router;
