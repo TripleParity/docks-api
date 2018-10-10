@@ -148,19 +148,40 @@ router.get('/:stackName/stackfile', async (req, res) => {
   // Get a list of IDs for the services in the stack
   let serviceIDList = [];
   let stackServices = [];
+  let stackNetworks = [];
   try {
     serviceIDList = await getServiceIDsByStack(req.params.stackName);
     stackServices = await getServicesByStack(req.params.stackName);
+
+    let networkInspectPromises = [];
+    // Go through all the services in the stack and build a list of network ID's
+    for (let service of stackServices) {
+      for (let network of service.Spec.TaskTemplate.Networks) {
+        networkInspectPromises.push(inspectNetworkAxios(network.Target));
+      }
+    }
+
+    // Resolve all of the network inspect promises
+    for (let promise of networkInspectPromises) {
+      const httpResponse = await promise;
+      if (httpResponse.status !== 200) {
+        continue;
+      }
+      stackNetworks.push(httpResponse.data);
+    }
+
+    // DEBUG PRINT
+    console.log('Network IDs: ' + JSON.stringify(stackNetworks));
   } catch (error) {
     console.error('Error while fetching services from stack: ' + error);
     res.status(500).send(error);
     return;
   }
-
+  // DEBUG PRINT
   console.log('Service IDs: ', serviceIDList);
   console.log('Inspected services: ', stackServices);
   // Return response (UNIMPLEMENTED)
-  res.status(501).send(serviceIDList);
+  res.status(501).send(stackNetworks);
 });
 
 // List all the tasks in the stack
@@ -410,8 +431,8 @@ async function getServiceIDsByStack(stackName) {
 }
 
 /**
- * Given the ID of a stack, this helper function inspect every
- * service in the stack and aggregate the results in an array
+ * Given the ID of a stack, this helper function inspects every
+ * service in the stack and aggregates the results in an array
  * @param {string} stackName - Name of the stack
  * @return {Promise<string[]>} - All services in the stack
  *
@@ -445,6 +466,29 @@ async function getServicesByStack(stackName) {
   }
 
   return inspectedServices;
+}
+
+/**
+ * Given the ID of a network, this helper function will fetch the network
+ * details from the Docker API (/network/{id})
+ * @param {string} networkID - ID of the network
+ * @return {Promise<Object>} - Returns the Axios response
+ *
+ * @throws {Object} Any errors returned from the Docker API
+ */
+async function inspectNetworkAxios(networkID) {
+  try {
+    return await axios.get('/networks/' + networkID, {
+      socketPath: '/var/run/docker.sock',
+      timeout: DOCKER_CLI_TIMEOUT,
+      headers: {
+        'Host': '',
+      },
+    });
+  } catch (error) {
+    console.error('Error while fetching task details: ' + error);
+    throw error;
+  }
 }
 
 module.exports = router;
