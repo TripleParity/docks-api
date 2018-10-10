@@ -401,7 +401,8 @@ async function inspectTaskAxios(taskID) {
  * Given the ID of a stack, this helper function will fetch the service
  * IDs of all the services inside the stack
  * @param {string} stackName - Name of the stack
- * @return {string[]} - Returns the list of IDs of all services in the stack
+ * @return {Promise<string[]>} - Returns the list of IDs
+ * of all services in the stack
  *
  * @throws {Object} Any errors returned from the Docker CLI
  */
