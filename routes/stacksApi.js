@@ -3,6 +3,7 @@ const router = new express.Router();
 const util = require('util');
 const os = require('os');
 const axios = require('axios');
+const compose = require('docker-api-to-compose');
 
 const {unlink, writeFile} = require('fs');
 const writeFileAsync = util.promisify(writeFile);
@@ -125,35 +126,13 @@ router.get('/:stackName/services', async (req, res) => {
     return;
   }
 
-  // List of all the services in the stack
-  let serviceIDList = [];
   try {
-    serviceIDList = await getServicesByStack(req.params.stackName);
+    const inspectedServices = await getServicesByStack(req.params.stackName);
+    res.status(200).send({data: inspectedServices});
   } catch (error) {
-    console.error('Error while fetching services from stack: ' + error);
+    console.err('Error while getting services by stack: ', error);
     res.status(500).send(error);
-    return;
   }
-
-  // For every ID, fetch its details from the Docker api
-  let inspectPromises = [];
-  for (let id of serviceIDList) {
-    inspectPromises.push(inspectServiceAxios(id));
-  }
-
-  // Wait for all promises to resolve
-  let responseObject = {data: []};
-  for (let promise of inspectPromises) {
-    const httpResponse = await promise;
-    if (httpResponse.status !== 200) {
-      continue;
-    }
-
-    responseObject.data.push(httpResponse.data);
-  }
-
-  // Return response
-  res.status(200).send(responseObject);
 });
 
 // Returns the Base64 encoded docker-compose file generated from the
@@ -168,14 +147,18 @@ router.get('/:stackName/stackfile', async (req, res) => {
 
   // Get a list of IDs for the services in the stack
   let serviceIDList = [];
+  let stackServices = [];
   try {
-    serviceIDList = await getServicesByStack(req.params.stackName);
+    serviceIDList = await getServiceIDsByStack(req.params.stackName);
+    stackServices = await getServicesByStack(req.params.stackName);
   } catch (error) {
     console.error('Error while fetching services from stack: ' + error);
     res.status(500).send(error);
     return;
   }
 
+  console.log('Service IDs: ', serviceIDList);
+  console.log('Inspected services: ', stackServices);
   // Return response (UNIMPLEMENTED)
   res.status(501).send(serviceIDList);
 });
@@ -406,7 +389,7 @@ async function inspectTaskAxios(taskID) {
  *
  * @throws {Object} Any errors returned from the Docker CLI
  */
-async function getServicesByStack(stackName) {
+async function getServiceIDsByStack(stackName) {
   // Get a list of IDs for the services in the stack
   let servicesCliResponse = {};
   try {
@@ -424,6 +407,44 @@ async function getServicesByStack(stackName) {
 
   // Only return IDs with length longer than 0 to filter out ""
   return splitList.filter((id) => id.length > 0);
+}
+
+/**
+ * Given the ID of a stack, this helper function inspect every
+ * service in the stack and aggregate the results in an array
+ * @param {string} stackName - Name of the stack
+ * @return {Promise<string[]>} - All services in the stack
+ *
+ * @throws {Object} Any errors returned from the Docker API
+ */
+async function getServicesByStack(stackName) {
+  // List of all the services in the stack
+  let serviceIDList = [];
+  try {
+    serviceIDList = await getServiceIDsByStack(stackName);
+  } catch (error) {
+    console.error('Error while fetching services from stack: ' + error);
+    throw error;
+  }
+
+  // For every ID, fetch its details from the Docker api
+  let inspectPromises = [];
+  for (let id of serviceIDList) {
+    inspectPromises.push(inspectServiceAxios(id));
+  }
+
+  // Wait for all promises to resolve
+  let inspectedServices = [];
+  for (let promise of inspectPromises) {
+    const httpResponse = await promise;
+    if (httpResponse.status !== 200) {
+      continue;
+    }
+
+    inspectedServices.push(httpResponse.data);
+  }
+
+  return inspectedServices;
 }
 
 module.exports = router;
