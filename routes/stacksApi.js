@@ -170,7 +170,9 @@ router.get('/:stackName/stackfile', async (req, res) => {
       stackServices, stackNetworks, stackVolumes);
 
     res.status(200).send({
-      data: new Buffer(stackFile).toString('base64'),
+      data: {
+        stackFile: new Buffer(stackFile).toString('base64'),
+      },
     });
   } catch (error) {
     console.error('Error while attempting to decode stack: ' + error);
