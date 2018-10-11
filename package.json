@@ -27,9 +27,9 @@
     "qrcode": "^1.2.2",
     "request": "^2.85.0",
     "rx": "^4.1.0",
-    "serve-favicon": "~2.4.5",
     "sequelize": "^4.38.1",
     "sequelize-cli": "^4.1.1",
+    "serve-favicon": "~2.4.5",
     "speakeasy": "^2.0.0"
   },
   "devDependencies": {

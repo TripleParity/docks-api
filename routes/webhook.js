@@ -1,7 +1,10 @@
 const express = require('express');
 let router = new express.Router();
-let dockerEventWatcher = require('../lib/docker_event_watcher');
+let dew = require('../lib/docker_event_watcher');
 let Webhook = require('../lib/docker_webhook');
+let deh = require('../lib/docker_event_handler');
+
+let handler = new deh.DockerEventHandler();
 
 let Webhooks = [];
 
@@ -21,7 +24,7 @@ router.post('/', async (req, res, next) => {
         return;
     }
 
-    let wh = new Webhook(req.body['name'], req.body['url'], req.body['types'], dockerEventWatcher);
+    let wh = new Webhook(req.body['name'], req.body['url'], req.body['types'], handler);
     wh.init();
 
     Webhooks.push(wh);
