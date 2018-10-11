@@ -143,44 +143,42 @@ router.get('/:stackName/stackfile', async (req, res) => {
   }
 
   // Get a list of IDs for the services in the stack
-  let serviceIDList = [];
   let stackServices = [];
   let stackNetworks = [];
+  let stackVolumes = [];
   try {
-    serviceIDList = await dockerApi.getServiceIDsByStack(req.params.stackName);
     stackServices = await dockerApi.getServicesByStack(req.params.stackName);
 
-    let networkInspectPromises = [];
-    // Go through all the services in the stack and build a list of network ID's
-    for (let service of stackServices) {
-      for (let network of service.Spec.TaskTemplate.Networks) {
-        networkInspectPromises.push(
-          dockerApi.inspectNetworkAxios(network.Target)
-        );
-      }
-    }
-
-    // Resolve all of the network inspect promises
-    for (let promise of networkInspectPromises) {
-      const httpResponse = await promise;
-      if (httpResponse.status !== 200) {
-        continue;
-      }
+    // Go through all the networks in the stack and inspect each one
+    // TODO: Duplicates?
+    const networkIDList = compose.getNetworkIds(stackServices);
+    for (let network of networkIDList) {
+      const httpResponse = await dockerApi.inspectNetworkAxios(network);
       stackNetworks.push(httpResponse.data);
     }
 
-    // DEBUG PRINT
-    console.log('Network IDs: ' + JSON.stringify(stackNetworks));
+    // Go through all the volimes in the stack and inspect each one
+    // TODO: Duplicates?
+    const volumeIDList = compose.getVolumeNames(stackServices);
+    for (let volume of volumeIDList) {
+      const httpResponse = await dockerApi.inspectVolumeAxios(volume);
+      stackVolumes.push(httpResponse.data);
+    }
+
+    // Generate stack file
+    const stackFile = compose.compose(
+      stackServices, stackNetworks, stackVolumes);
+
+    res.status(200).send({
+      data: {
+        stackFile: new Buffer(stackFile).toString('base64'),
+      },
+    });
   } catch (error) {
-    console.error('Error while fetching services from stack: ' + error);
+    console.error('Error while attempting to decode stack: ' + error);
     res.status(500).send(error);
     return;
   }
-  // DEBUG PRINT
-  console.log('Service IDs: ', serviceIDList);
-  console.log('Inspected services: ', stackServices);
-  // Return response (UNIMPLEMENTED)
-  res.status(501).send(stackNetworks);
 });
 
 // List all the tasks in the stack
