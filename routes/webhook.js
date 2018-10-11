@@ -4,7 +4,9 @@ let dew = require('../lib/docker_event_watcher');
 let Webhook = require('../lib/docker_webhook');
 let deh = require('../lib/docker_event_handler');
 
-let handler = new deh.DockerEventHandler();
+let docker_event_watcher = new dew();
+let handler = docker_event_watcher.dockerEventHandler;
+docker_event_watcher.start();
 
 let Webhooks = [];
 
