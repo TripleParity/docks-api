@@ -35,7 +35,7 @@ router.post('/', async (req, res, next) => {
   }
 
   if (req.body.hasOwnProperty('modifier')) {
-    wh.modify = eval(req.body['modifier']);
+    wh.modify = eval(Buffer.from(req.body['modifier'], 'base64').toString());
   }
 
   wh.init();
