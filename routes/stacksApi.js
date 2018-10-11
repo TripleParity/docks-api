@@ -170,6 +170,10 @@ router.get('/:stackName/stackfile', async (req, res) => {
       stackNetworks.push(httpResponse.data);
     }
 
+    // // Test volume inspect
+    // const volumeInspect = await inspectVolumeAxios('d289b1f52ab428dbd7f4c0a9c6a30de15310b4371eb58dbcb58b7a32bf10a11f');
+    // console.log(volumeInspect.data);
+
     // DEBUG PRINT
     console.log('Network IDs: ' + JSON.stringify(stackNetworks));
   } catch (error) {
@@ -486,7 +490,31 @@ async function inspectNetworkAxios(networkID) {
       },
     });
   } catch (error) {
-    console.error('Error while fetching task details: ' + error);
+    console.error('Error while fetching network details: ' + error);
+    throw error;
+  }
+}
+
+
+/**
+ * Given the ID of a network, this helper function will fetch the volume
+ * details from the Docker API (/volumes/{id})
+ * @param {string} volumeID - ID of the network
+ * @return {Promise<Object>} - Returns the Axios response
+ *
+ * @throws {Object} Any errors returned from the Docker API
+ */
+async function inspectVolumeAxios(volumeID) {
+  try {
+    return await axios.get('/volumes/' + volumeID, {
+      socketPath: '/var/run/docker.sock',
+      timeout: DOCKER_CLI_TIMEOUT,
+      headers: {
+        'Host': '',
+      },
+    });
+  } catch (error) {
+    console.error('Error while fetching volume details: ' + error);
     throw error;
   }
 }
