@@ -8,7 +8,7 @@ let docker_event_watcher = new dew();
 let handler = docker_event_watcher.dockerEventHandler;
 docker_event_watcher.start();
 
-let Webhooks = docker_event_watcher.dockerEventHandler.forEach;
+let Webhooks = docker_event_watcher.forward_to;
 
 router.post('/', async (req, res, next) => {
     if (!req.body.hasOwnProperty('url') || req.body['url'] === '') {
