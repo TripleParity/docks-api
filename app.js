@@ -4,7 +4,6 @@ let logger = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
 const cors = require('cors');
-const DockerEventWatcher = require('./lib/docker_event_watcher');
 const tasksRoute = require('./routes/tasks');
 
 let index = require('./routes/index');
@@ -85,7 +84,6 @@ async function initDatabase() {
   console.log('Initializing database...');
   await userManager.initDatabase();
 }
-
 
 
 module.exports = app;
