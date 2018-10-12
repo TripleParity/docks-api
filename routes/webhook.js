@@ -3,10 +3,11 @@ let router = new express.Router();
 let DockerEventWatcher = require('../lib/docker_event_watcher');
 let Webhook = require('../lib/docker_webhook');
 
+/* eslint-disable */ 
 let dockerEventWatcher = new DockerEventWatcher();
 let handler = dockerEventWatcher.dockerEventHandler;
 dockerEventWatcher.start();
-
+/* eslint-enable */
 let Webhooks = dockerEventWatcher.forward_to;
 
 router.post('/', async (req, res, next) => {
@@ -44,7 +45,11 @@ router.post('/', async (req, res, next) => {
 
   res.status(200).send({message: 'Webhook created!'});
 });
-
+/**
+ * Deletes a webhook
+ * @param {string} path
+ * @param {any} ()
+ */
 router.delete('/', async (req, res, next) => {
   let name = req.params.name;
 
