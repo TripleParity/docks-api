@@ -1,21 +1,14 @@
 # Docks API
 
-Docks API provides a layer of Authentication over the Docker API.
+Docks API provides authentication and additional functionality over the Docker API
 
-The API specification is defined in `docks.apib`
+For information on deploying Docks view the [docks](https://github.com/TripleParity/docks) repository.
 
 ## Features
-- [X] Authentication
-    - [X] Create, Read, Update and Delete admin users
-- [ ] Authorization
-    - [ ] Restrict API access based on user permissions
-- [ ] Teams
-    - [ ] Add users to teams
-    - [ ] Assign resources to teams to manage
-
-## Requirements
-- Docker Engine version 17 or higher
-- Docker Swarm Manager Node for running Docks API
+- Authentication and User Management
+- Stack management features
+- Generate docker-compose.yml from deployed stacks
+- WebHooks management (Slack notifications)
 
 ## Configuration
 
@@ -32,6 +25,12 @@ Docks API can be configured using the following environment variables:
 
 
 ## Deployment
+
+### Requirements
+- Docker Engine version 17 or higher
+- Docker Swarm Manager Node for running Docks API
+
+
 The latest version of Docks API can be deployed as follows
 ```shell
 git clone https://github.com/TripleParity/docks-ui

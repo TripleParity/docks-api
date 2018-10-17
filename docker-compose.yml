@@ -1,11 +1,11 @@
 # Deploy the latest version of docks-api from master branch
 
-version: '3.2'
+version: '3.3'
 
 services:
 
   api:
-    image: tripleparity/docks-api:0.4.0
+    image: tripleparity/docks-api:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -19,13 +19,16 @@ services:
         constraints: [node.role == manager]
 
   db:
-    image: postgres
+    image: postgres:latest
     volumes:
       - type: volume
         source: docks_data
         target: /var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=example
+    deploy:
+      placement:
+        constraints: [node.role == manager]
 
 volumes:
   docks_data:
